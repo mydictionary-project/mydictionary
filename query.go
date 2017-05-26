@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 const (
@@ -17,20 +19,6 @@ const (
 	sn  = "SN"
 	qc  = "QC"
 	qt  = "QT"
-	// BingDictionary : string for "SourceName" in "VocabularyAnswerStruct"
-	BingDictionary = "Bing Dictionary"
-	// IcibaCollins : string for "SourceName" in "VocabularyAnswerStruct"
-	IcibaCollins = "iCIBA Collins"
-	// MerriamWebster : string for "SourceName" in "VocabularyAnswerStruct"
-	MerriamWebster = "Merriam Webster"
-	// Basic : string for "Status" in "VocabularyAnswerStruct"
-	Basic = "basic"
-	// Advance : string for "Status" in "VocabularyAnswerStruct"
-	Advance = "advance"
-	// Different : string for "Status" in "VocabularyAnswerStruct"
-	Different = "different"
-	// Participle : string for "Status" in "VocabularyAnswerStruct"
-	Participle = "participle"
 )
 
 var (
@@ -82,10 +70,15 @@ func Initialize() (information string, err error) {
 // CheckNetwork : check network
 func CheckNetwork() (pass bool, information string) {
 	var (
-		vocabularyAnswerList []VocabularyAnswerStruct
+		vocabularyAsk        vocabulary4mydictionary.VocabularyAskStruct
+		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
 		tm                   time.Time
 	)
-	vocabularyAnswerList = queryOnline(VocabularyAskStruct{"apple", false, true, true})
+	vocabularyAsk.Word = "apple"
+	vocabularyAsk.Advance = false
+	vocabularyAsk.Online = true
+	vocabularyAsk.DoNotRecord = true
+	vocabularyAnswerList = requestOnline(vocabularyAsk)
 	tm = time.Now()
 	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	if len(vocabularyAnswerList) == 0 {
@@ -99,7 +92,7 @@ func CheckNetwork() (pass bool, information string) {
 	} else {
 		pass = true
 		for i := 0; i < len(vocabularyAnswerList); i++ {
-			if vocabularyAnswerList[i].Status == Basic {
+			if vocabularyAnswerList[i].Status == vocabulary4mydictionary.Basic {
 				information += fmt.Sprintf("%s: OK\n\n", vocabularyAnswerList[i].SourceName)
 			} else {
 				information += fmt.Sprintf("%s: %s\n\n", vocabularyAnswerList[i].SourceName, vocabularyAnswerList[i].Status)
@@ -111,10 +104,10 @@ func CheckNetwork() (pass bool, information string) {
 }
 
 // Query : query
-func Query(vocabularyAsk VocabularyAskStruct) (vocabularyResult VocabularyResultStruct, err error) {
+func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyResult VocabularyResultStruct, err error) {
 	var (
-		vocabularyAnswerList        []VocabularyAnswerStruct
-		vocabularyAnswerListPrepare []VocabularyAnswerStruct
+		vocabularyAnswerList        []vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswerListPrepare []vocabulary4mydictionary.VocabularyAnswerStruct
 		localNoFound                bool
 		enableOnline                bool
 	)
@@ -131,7 +124,7 @@ func Query(vocabularyAsk VocabularyAskStruct) (vocabularyResult VocabularyResult
 	// online: query
 	localNoFound = true
 	for i := 0; i < len(vocabularyAnswerListPrepare); i++ {
-		if vocabularyAnswerListPrepare[i].Status == Basic {
+		if vocabularyAnswerListPrepare[i].Status == vocabulary4mydictionary.Basic {
 			localNoFound = false
 			break
 		}
@@ -140,12 +133,12 @@ func Query(vocabularyAsk VocabularyAskStruct) (vocabularyResult VocabularyResult
 		(setting.Online.modeContent.noFound && localNoFound) ||
 		(setting.Online.modeContent.userNeed && vocabularyAsk.Online)
 	if enableOnline {
-		vocabularyAnswerList = queryOnline(vocabularyAsk)
+		vocabularyAnswerList = requestOnline(vocabularyAsk)
 		vocabularyAnswerListPrepare = append(vocabularyAnswerListPrepare, vocabularyAnswerList...)
 	}
 	// build result
 	for i := 0; i < len(vocabularyAnswerListPrepare); i++ {
-		if strings.Compare(vocabularyAnswerListPrepare[i].Status, Advance) == 0 {
+		if strings.Compare(vocabularyAnswerListPrepare[i].Status, vocabulary4mydictionary.Advance) == 0 {
 			vocabularyResult.Advance = append(vocabularyResult.Advance, vocabularyAnswerListPrepare[i])
 		} else {
 			vocabularyResult.Basic = append(vocabularyResult.Basic, vocabularyAnswerListPrepare[i])

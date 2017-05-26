@@ -1,7 +1,9 @@
 package mydictionary
 
+import "github.com/zzc-tongji/vocabulary4mydictionary"
+
 // VocabularyResultStruct : result
 type VocabularyResultStruct struct {
-	Basic   []VocabularyAnswerStruct `json:"Basic"`
-	Advance []VocabularyAnswerStruct `json:"Advance"`
+	Basic   []vocabulary4mydictionary.VocabularyAnswerStruct `json:"Basic"`
+	Advance []vocabulary4mydictionary.VocabularyAnswerStruct `json:"Advance"`
 }

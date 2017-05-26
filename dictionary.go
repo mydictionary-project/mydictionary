@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 // dictionary
@@ -14,10 +16,10 @@ type dictionaryStruct struct {
 	readable     bool
 	writable     bool
 	id           int // distinction: id < 0 --> dictionary, id == 0 --> collection, else --> online (impossible)
-	onlineSource int // only be used when id == 0 (collection)
+	onlineSource string
 	xlsx         *excelize.File
 	columnIndex  map[string]int
-	content      []VocabularyAnswerStruct
+	content      []vocabulary4mydictionary.VocabularyAnswerStruct
 }
 
 // open and check .xlsx file
@@ -87,7 +89,7 @@ func (dictionary *dictionaryStruct) check(filePath string) (err error) {
 func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 	var (
 		str              string
-		vocabularyAnswer VocabularyAnswerStruct
+		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
 	)
 	if dictionary.readable {
 		// check
@@ -96,7 +98,7 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			return
 		}
 		// get space of content
-		dictionary.content = make([]VocabularyAnswerStruct, 0)
+		dictionary.content = make([]vocabulary4mydictionary.VocabularyAnswerStruct, 0)
 		// ram image -> content
 		for i := 2; ; i++ {
 			// `xlsx:wd` -> .Word
@@ -124,7 +126,7 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			/**/
 			// others
 			vocabularyAnswer.SourceName = dictionary.name
-			vocabularyAnswer.sourceID = dictionary.id
+			vocabularyAnswer.Type = vocabulary4mydictionary.Dictionary
 			vocabularyAnswer.Status = ""
 			// add to dictionary
 			dictionary.content = append(dictionary.content, vocabularyAnswer)
@@ -169,9 +171,10 @@ func (dictionary *dictionaryStruct) write() (information string, err error) {
 	return
 }
 
-func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk VocabularyAskStruct) (vocabularyAnswerList []VocabularyAnswerStruct) {
+func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
 	var (
-		vocabularyAnswer VocabularyAnswerStruct
+		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		tm               time.Time
 	)
 	if dictionary.readable {
 		for i := 0; i < len(dictionary.content); i++ {
@@ -180,11 +183,15 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk VocabularyAskSt
 				if dictionary.writable {
 					// update dictionary or collection
 					if vocabularyAsk.DoNotRecord == false {
-						dictionary.content[i].update()
+						// uodate
+						tm = time.Now()
+						dictionary.content[i].QueryCounter++
+						dictionary.content[i].QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+
 					}
 				}
 				vocabularyAnswer = dictionary.content[i]
-				vocabularyAnswer.Status = Basic
+				vocabularyAnswer.Status = vocabulary4mydictionary.Basic
 				vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 				if vocabularyAsk.Advance {
 					continue
@@ -196,14 +203,14 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk VocabularyAskSt
 				// advance
 				if strings.Contains(dictionary.content[i].Word, vocabularyAsk.Word) {
 					vocabularyAnswer = dictionary.content[i]
-					vocabularyAnswer.Status = Advance
+					vocabularyAnswer.Status = vocabulary4mydictionary.Advance
 					vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 					goto ADVANCE_END
 				}
 				for j := 0; j < len(dictionary.content[i].Define); j++ {
 					if strings.Contains(dictionary.content[i].Define[j], vocabularyAsk.Word) {
 						vocabularyAnswer = dictionary.content[i]
-						vocabularyAnswer.Status = Advance
+						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 						goto ADVANCE_END
 					}
@@ -216,25 +223,26 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk VocabularyAskSt
 }
 
 // add vocabulary which is not existent in dictionary to collection
-func (dictionary *dictionaryStruct) add(vocabularyAnswerList []VocabularyAnswerStruct) {
+func (dictionary *dictionaryStruct) add(vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
 	var (
 		existent         bool
 		index            int
-		vocabularyAnswer VocabularyAnswerStruct
+		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		tm               time.Time
 	)
 	if dictionary.id == 0 && dictionary.readable && dictionary.writable {
 		// only available for collection, which is readable and writable
 		existent = false
 		index = -1
 		for i := 0; i < len(vocabularyAnswerList); i++ {
-			if strings.Compare(vocabularyAnswerList[i].Status, Basic) == 0 {
+			if strings.Compare(vocabularyAnswerList[i].Status, vocabulary4mydictionary.Basic) == 0 {
 				// only for vocabulary with define from basic query
-				if vocabularyAnswerList[i].sourceID <= 0 {
+				if vocabularyAnswerList[i].Type != vocabulary4mydictionary.Online {
 					// from collection or dictionary: check existence
 					existent = true
 				} else {
 					// from online: check whether online source index match or not
-					if vocabularyAnswerList[i].sourceID == dictionary.onlineSource {
+					if strings.Compare(vocabularyAnswerList[i].SourceName, dictionary.onlineSource) == 0 {
 						index = i
 					}
 				}
@@ -243,7 +251,15 @@ func (dictionary *dictionaryStruct) add(vocabularyAnswerList []VocabularyAnswerS
 		if existent == false && index != -1 {
 			// add to collection
 			vocabularyAnswer = vocabularyAnswerList[index]
-			vocabularyAnswer.prepare(dictionary)
+			// prepare
+			tm = time.Now()
+			vocabularyAnswer.SerialNumber = len(dictionary.content) + 1
+			vocabularyAnswer.QueryCounter = 1
+			vocabularyAnswer.QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+			vocabularyAnswer.SourceName = collection
+			vocabularyAnswer.Type = vocabulary4mydictionary.Collection
+			vocabularyAnswer.Status = ""
+			// add
 			dictionary.content = append(dictionary.content, vocabularyAnswer)
 		}
 	}

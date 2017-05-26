@@ -32,7 +32,7 @@ func (dictionaryList *dictionaryListSlice) read(setting *settingStruct) (err err
 		dictionary.readable = setting.Dictionary[i].Readable
 		dictionary.writable = setting.Dictionary[i].Writable
 		dictionary.id = -(i + 1)
-		dictionary.onlineSource = 0
+		dictionary.onlineSource = ""
 		str, err = rtoa.Convert(setting.Dictionary[i].FilePath, "")
 		if err != nil {
 			return

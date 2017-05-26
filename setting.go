@@ -14,7 +14,7 @@ type settingStruct struct {
 		FilePath     string `json:"filePath"`
 		Readable     bool   `json:"readable"`
 		Writable     bool   `json:"writable"`
-		OnlineSource int    `json:"onlineSource"`
+		OnlineSource string `json:"onlineSource"`
 	} `json:"collection"`
 	Dictionary []struct {
 		Name     string `json:"name"`
@@ -58,10 +58,6 @@ func (setting *settingStruct) read() (content string, err error) {
 	err = json.Unmarshal(buf, setting)
 	if err != nil {
 		return
-	}
-	// check collection online source
-	if setting.Collection.OnlineSource <= 0 || setting.Collection.OnlineSource >= 4 {
-		setting.Collection.OnlineSource = 1
 	}
 	// set online mode content
 	if setting.Online.Mode < 0 {
