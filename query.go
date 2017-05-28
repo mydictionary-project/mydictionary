@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	// name of collection
-	collection = "collection"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"
@@ -24,6 +22,7 @@ const (
 var (
 	initialized    bool
 	setting        settingStruct
+	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
 	mutexContent   sync.Mutex
 )
@@ -55,7 +54,14 @@ func Initialize() (information string, err error) {
 	}
 	// information setting
 	information += fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n%s\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second(), content)
-	// read collection and dictionary
+	// read collection
+	err = collectionList.read(&setting)
+	if err != nil {
+		// set flag
+		initialized = false
+		return
+	}
+	// read dictionary
 	err = dictionaryList.read(&setting)
 	if err != nil {
 		// set flag
@@ -116,7 +122,12 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 		err = errors.New("the program have not been initialized")
 		return
 	}
-	// collection and dictionary: query and update
+	// collection: query and update
+	for i := 0; i < len(collectionList); i++ {
+		vocabularyAnswerList = collectionList[i].queryAndUpdate(vocabularyAsk)
+		vocabularyAnswerListPrepare = append(vocabularyAnswerListPrepare, vocabularyAnswerList...)
+	}
+	// dictionary: query and update
 	for i := 0; i < len(dictionaryList); i++ {
 		vocabularyAnswerList = dictionaryList[i].queryAndUpdate(vocabularyAsk)
 		vocabularyAnswerListPrepare = append(vocabularyAnswerListPrepare, vocabularyAnswerList...)
@@ -147,7 +158,9 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 	if enableOnline {
 		// add online to collection
 		if vocabularyAsk.DoNotRecord == false {
-			dictionaryList[0].add(vocabularyResult.Basic)
+			for i := 0; i < len(collectionList); i++ {
+				collectionList[i].add(vocabularyResult.Basic)
+			}
 		}
 	}
 	return
@@ -155,11 +168,22 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 
 // Save : save to .xlsx file
 func Save() (success bool, information string) {
-	var tm time.Time
+	var (
+		tm                    time.Time
+		successCollection     bool
+		informationCollection string
+		successDictionary     bool
+		informationDictionary string
+	)
 	// avoid multiple writing (.xlsx file) at the same time
 	mutexContent.Lock()
-	success, information = dictionaryList.write()
+	successCollection, informationCollection = collectionList.write()
+	successDictionary, informationDictionary = dictionaryList.write()
 	mutexContent.Unlock()
+	// merge
+	success = successCollection && successDictionary
+	information = informationCollection + informationDictionary
+	// add time
 	if information != "" {
 		tm = time.Now()
 		information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second()) + information

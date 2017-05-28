@@ -10,7 +10,8 @@ import (
 
 // setting
 type settingStruct struct {
-	Collection struct {
+	Collection []struct {
+		Name         string `json:"name"`
 		FilePath     string `json:"filePath"`
 		Readable     bool   `json:"readable"`
 		Writable     bool   `json:"writable"`

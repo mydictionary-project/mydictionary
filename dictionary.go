@@ -12,14 +12,12 @@ import (
 
 // dictionary
 type dictionaryStruct struct {
-	name         string
-	readable     bool
-	writable     bool
-	id           int // distinction: id < 0 --> dictionary, id == 0 --> collection, else --> online (impossible)
-	onlineSource string
-	xlsx         *excelize.File
-	columnIndex  map[string]int
-	content      []vocabulary4mydictionary.VocabularyAnswerStruct
+	name        string
+	readable    bool
+	writable    bool
+	xlsx        *excelize.File
+	columnIndex map[string]int
+	content     []vocabulary4mydictionary.VocabularyAnswerStruct
 }
 
 // open and check .xlsx file
@@ -85,7 +83,7 @@ func (dictionary *dictionaryStruct) check(filePath string) (err error) {
 	return
 }
 
-// read data from .xlsx file and put to collection and dictionary
+// read data from .xlsx file and put to dictionary
 func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 	var (
 		str              string
@@ -123,7 +121,6 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			}
 			// `xlsx:qt` -> .QueryTime
 			vocabularyAnswer.QueryTime = dictionary.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[qt]), i))
-			/**/
 			// others
 			vocabularyAnswer.SourceName = dictionary.name
 			vocabularyAnswer.Type = vocabulary4mydictionary.Dictionary
@@ -136,21 +133,11 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 	return
 }
 
-// get data from collection and dictionary and write to .xlsx file
+// get data dictionary and write to .xlsx file
 func (dictionary *dictionaryStruct) write() (information string, err error) {
 	if dictionary.readable && dictionary.writable {
 		// content -> ram image
 		for i := 0; i < len(dictionary.content); i++ {
-			if dictionary.id == 0 {
-				// set row height
-				dictionary.xlsx.SetRowHeight("sheet1", i+1, dictionary.xlsx.GetRowHeight("sheet1", 0))
-				// .Word -> `xlsx:wd`
-				dictionary.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[wd]), i+2), dictionary.content[i].Word)
-				// .Define -> `xlsx:def`
-				dictionary.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[def]), i+2), strings.Join(dictionary.content[i].Define, "\n"))
-				// .SerialNumber -> `xlsx:sn`
-				dictionary.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[sn]), i+2), dictionary.content[i].SerialNumber)
-			}
 			// .QueryCounter -> `xlsx:qc`
 			dictionary.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[qc]), i+2), dictionary.content[i].QueryCounter)
 			// .QueryTime -> `xlsx:qt`
@@ -162,15 +149,12 @@ func (dictionary *dictionaryStruct) write() (information string, err error) {
 			return
 		}
 		// output
-		if dictionary.id == 0 {
-			information = fmt.Sprintf("Collection \"%s\" has been updated.\n\n", dictionary.xlsx.Path)
-		} else {
-			information = fmt.Sprintf("Dictionary \"%s\" has been updated.\n\n", dictionary.xlsx.Path)
-		}
+		information = fmt.Sprintf("Dictionary \"%s\" has been updated.\n\n", dictionary.xlsx.Path)
 	}
 	return
 }
 
+// query and update
 func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
 	var (
 		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
@@ -181,9 +165,9 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 			// basic
 			if strings.Compare(dictionary.content[i].Word, vocabularyAsk.Word) == 0 {
 				if dictionary.writable {
-					// update dictionary or collection
+					// update dictionary
 					if vocabularyAsk.DoNotRecord == false {
-						// uodate
+						// update
 						tm = time.Now()
 						dictionary.content[i].QueryCounter++
 						dictionary.content[i].QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
@@ -220,47 +204,4 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 		}
 	}
 	return
-}
-
-// add vocabulary which is not existent in dictionary to collection
-func (dictionary *dictionaryStruct) add(vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
-	var (
-		existent         bool
-		index            int
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
-		tm               time.Time
-	)
-	if dictionary.id == 0 && dictionary.readable && dictionary.writable {
-		// only available for collection, which is readable and writable
-		existent = false
-		index = -1
-		for i := 0; i < len(vocabularyAnswerList); i++ {
-			if strings.Compare(vocabularyAnswerList[i].Status, vocabulary4mydictionary.Basic) == 0 {
-				// only for vocabulary with define from basic query
-				if vocabularyAnswerList[i].Type != vocabulary4mydictionary.Online {
-					// from collection or dictionary: check existence
-					existent = true
-				} else {
-					// from online: check whether online source index match or not
-					if strings.Compare(vocabularyAnswerList[i].SourceName, dictionary.onlineSource) == 0 {
-						index = i
-					}
-				}
-			}
-		}
-		if existent == false && index != -1 {
-			// add to collection
-			vocabularyAnswer = vocabularyAnswerList[index]
-			// prepare
-			tm = time.Now()
-			vocabularyAnswer.SerialNumber = len(dictionary.content) + 1
-			vocabularyAnswer.QueryCounter = 1
-			vocabularyAnswer.QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-			vocabularyAnswer.SourceName = collection
-			vocabularyAnswer.Type = vocabulary4mydictionary.Collection
-			vocabularyAnswer.Status = ""
-			// add
-			dictionary.content = append(dictionary.content, vocabularyAnswer)
-		}
-	}
 }
