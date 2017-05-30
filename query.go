@@ -17,6 +17,7 @@ const (
 	sn  = "SN"
 	qc  = "QC"
 	qt  = "QT"
+	nt  = "Note"
 )
 
 var (
