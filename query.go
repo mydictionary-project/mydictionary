@@ -45,7 +45,7 @@ func Initialize() (information string, err error) {
 	}
 	// title
 	tm = time.Now()
-	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\nmydictionary\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\nmydictionary v1.0.0\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	// read setting
 	content, err = setting.read()
 	if err != nil {
