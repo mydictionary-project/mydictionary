@@ -45,7 +45,7 @@ func Initialize() (information string, err error) {
 	}
 	// title
 	tm = time.Now()
-	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\nmydictionary v1.0.0\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\nmydictionary v1.0.1\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	// read setting
 	content, err = setting.read()
 	if err != nil {
@@ -80,23 +80,25 @@ func CheckNetwork() (pass bool, information string) {
 		vocabularyAsk        vocabulary4mydictionary.VocabularyAskStruct
 		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
 		tm                   time.Time
+		timeString           string
+		temp                 bool
 	)
 	vocabularyAsk.Word = "apple"
 	vocabularyAsk.Advance = false
 	vocabularyAsk.Online = true
 	vocabularyAsk.DoNotRecord = true
-	vocabularyAnswerList = requestOnline(vocabularyAsk)
 	tm = time.Now()
-	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-	if len(vocabularyAnswerList) == 0 {
-		if setting.Online.Mode == 0 {
-			information += "offline mode\n\n"
-			pass = true
-		} else {
-			information += "network error\n\n"
-			pass = false
-		}
+	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	if setting.Online.Mode == 0 {
+		// offline mode
+		information = timeString + "offline mode\n\n"
+		pass = true
 	} else {
+		// set setting.Online.Debug as false temporarily
+		temp = setting.Online.Debug
+		setting.Online.Debug = true
+		// get result of online query
+		vocabularyAnswerList = requestOnline(vocabularyAsk)
 		pass = true
 		for i := 0; i < len(vocabularyAnswerList); i++ {
 			if vocabularyAnswerList[i].Status == vocabulary4mydictionary.Basic {
@@ -106,6 +108,11 @@ func CheckNetwork() (pass bool, information string) {
 				pass = false
 			}
 		}
+		if strings.Compare(information, "") != 0 {
+			information = timeString + information
+		}
+		// set setting.Online.Debug as its original value
+		setting.Online.Debug = temp
 	}
 	return
 }
