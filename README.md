@@ -4,7 +4,7 @@
 
 MYDICTIONARY is a library designed by golang. It provides the API for developers to build applications of excel-based and online dictionaries.
 
-### 2. Basic Information 
+### 2. Basic Information
 
 #### 2.1. Vocabulary
 
@@ -146,7 +146,7 @@ There are 3 structures in the *configuration*: `"collection"`, `"dictionary"` an
 
 `"mode"` is an integer. It determines on what condition the library should provide *vocabularies* from *services* (query online).
 
-Here is the possible value: 
+Here is the possible value:
 
 - `0`: the library will never query online.
 - `1`: the library will query online, if users need.
