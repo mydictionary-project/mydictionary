@@ -7,6 +7,15 @@ import (
 	"github.com/zzc-tongji/icibacollins4mydictionary"
 	"github.com/zzc-tongji/merriamwebster4mydictionary"
 	"github.com/zzc-tongji/vocabulary4mydictionary"
+	// NOTE:
+	//
+	// 1. Add your packages of services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	// Example:
+	//
+	//    "github.com/zzc-tongji/example4mydictionary"
+	//
 )
 
 // quary vocabulary online
@@ -33,6 +42,19 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 			vocabularyAnswerChannel <- merriamwebster4mydictionary.Request(vocabularyAsk)
 		}()
 	}
+	// NOTE:
+	//
+	// 1. Add your functions of services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	// Example:
+	//
+	//    if setting.Online.Service.ExambleService {
+	//    	go func() {
+	//    		vocabularyAnswerChannel <- example4mydictionary.Request(vocabularyAsk)
+	//    		}()
+	//    }()
+	//
 	// add to answer list
 	for i := 0; i < setting.Online.length; i++ {
 		vocabularyAnswer = <-vocabularyAnswerChannel

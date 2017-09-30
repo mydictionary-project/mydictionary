@@ -34,6 +34,16 @@ type settingStruct struct {
 			BingDictionary bool `json:"bingDictionary"`
 			IcibaCollins   bool `json:"icibaCollins"`
 			MerriamWebster bool `json:"merriamWebster"`
+			// NOTE:
+			//
+			// 1. Add your services as public members above, like the example below.
+			// 2. Add corresponding members in file "mydictionary.setting.json".
+			// 3. Do not edit this note.
+			//
+			// Example:
+			//
+			//    ExambleService bool `json:"exambleService"`
+			//
 		} `json:"service"`
 		length int
 		Debug  bool `json:"debug"`
@@ -102,6 +112,17 @@ func (setting *settingStruct) read() (content string, err error) {
 	if setting.Online.Service.MerriamWebster {
 		setting.Online.length++
 	}
+	// NOTE:
+	//
+	// 1. Add your services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	// Example:
+	//
+	//    if setting.Online.Service.ExambleService {
+	//    	setting.Online.length++
+	//    }
+	//
 	content = strings.TrimRight(string(buf), "\n")
 	return
 }
