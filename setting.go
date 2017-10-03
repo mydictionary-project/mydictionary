@@ -31,13 +31,14 @@ type settingStruct struct {
 			anyway   bool
 		}
 		Service struct {
-			BingDictionary bool `json:"bingDictionary"`
-			IcibaCollins   bool `json:"icibaCollins"`
-			MerriamWebster bool `json:"merriamWebster"`
+			BingDictionary bool `json:"Bing Dictionary"`
+			IcibaCollins   bool `json:"iCIBA Collins"`
+			MerriamWebster bool `json:"Merriam Webster"`
 			// NOTE:
 			//
 			// 1. Add your services as public members above, like the example below.
 			// 2. Add corresponding members in file "mydictionary.setting.json".
+			//    For each member, the string of its key should be exactly the same as your service name.
 			// 3. Do not edit this note.
 			//
 			// Example:

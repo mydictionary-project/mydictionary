@@ -12,7 +12,7 @@ import (
 
 const (
 	// version
-	version = "v1.0.2"
+	version = "v2.0.0"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"

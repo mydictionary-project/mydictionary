@@ -108,9 +108,9 @@ Here is an example:
 		"mode":3,
 		"service":
 		{
-			"bingDictionary":true,
-			"icibaCollins":true,
-			"merriamWebster":true
+			"Bing Dictionary":true,
+			"iCIBA Collins":true,
+			"Merriam Webster":true
 		},
 		"debug":true
 	}
