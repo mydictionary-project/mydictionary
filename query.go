@@ -22,6 +22,8 @@ const (
 
 var (
 	initialized    bool
+	tm             time.Time
+	timeString     string
 	setting        settingStruct
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
@@ -34,18 +36,17 @@ func init() {
 
 // Initialize : initialize the library
 func Initialize() (information string, err error) {
-	var (
-		tm      time.Time
-		content string
-	)
+	var content string
 	// return directly if the library has been initialized
 	if initialized {
 		err = errors.New("the program should be initialized only once")
 		return
 	}
-	// title
+	// get time
 	tm = time.Now()
-	information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\nmydictionary v1.0.1\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	// title
+	information = timeString + "mydictionary v1.0.1\n\n"
 	// read setting
 	content, err = setting.read()
 	if err != nil {
@@ -54,7 +55,7 @@ func Initialize() (information string, err error) {
 		return
 	}
 	// information setting
-	information += fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n%s\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second(), content)
+	information += timeString + content + "\n\n"
 	// read collection
 	err = collectionList.read(&setting)
 	if err != nil {
@@ -79,19 +80,15 @@ func CheckNetwork() (pass bool, information string) {
 	var (
 		vocabularyAsk        vocabulary4mydictionary.VocabularyAskStruct
 		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
-		tm                   time.Time
-		timeString           string
 		temp                 bool
 	)
 	vocabularyAsk.Word = "apple"
 	vocabularyAsk.Advance = false
 	vocabularyAsk.Online = true
 	vocabularyAsk.DoNotRecord = true
-	tm = time.Now()
-	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	if setting.Online.Mode == 0 {
 		// offline mode
-		information = timeString + "offline mode\n\n"
+		information = "offline mode\n\n"
 		pass = true
 	} else {
 		// set setting.Online.Debug as false temporarily
@@ -108,11 +105,14 @@ func CheckNetwork() (pass bool, information string) {
 				pass = false
 			}
 		}
-		if strings.Compare(information, "") != 0 {
-			information = timeString + information
-		}
 		// set setting.Online.Debug as its original value
 		setting.Online.Debug = temp
+	}
+	// get time
+	if strings.Compare(information, "") != 0 {
+		tm = time.Now()
+		timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+		information = timeString + information
 	}
 	return
 }
@@ -177,7 +177,6 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 // Save : save to .xlsx file
 func Save() (success bool, information string) {
 	var (
-		tm                    time.Time
 		successCollection     bool
 		informationCollection string
 		successDictionary     bool
@@ -191,10 +190,11 @@ func Save() (success bool, information string) {
 	// merge
 	success = successCollection && successDictionary
 	information = informationCollection + informationDictionary
-	// add time
-	if information != "" {
+	// get
+	if strings.Compare(information, "") != 0 {
 		tm = time.Now()
-		information = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second()) + information
+		timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+		information = timeString + information
 	}
 	return
 }
