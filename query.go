@@ -11,6 +11,8 @@ import (
 )
 
 const (
+	// version
+	version = "v1.0.2"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"
@@ -27,7 +29,7 @@ var (
 	setting        settingStruct
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
-	mutexContent   sync.Mutex
+	mutex          sync.Mutex
 )
 
 func init() {
@@ -37,21 +39,27 @@ func init() {
 // Initialize : initialize the library
 func Initialize() (information string, err error) {
 	var content string
+	// lock
+	mutex.Lock()
 	// return directly if the library has been initialized
 	if initialized {
 		err = errors.New("the program should be initialized only once")
+		// unlock
+		mutex.Unlock()
 		return
 	}
 	// get time
 	tm = time.Now()
 	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	// title
-	information = timeString + "mydictionary v1.0.1\n\n"
+	information = timeString + "mydictionary " + version + "\n\n"
 	// read setting
 	content, err = setting.read()
 	if err != nil {
 		// set flag
 		initialized = false
+		// unlock
+		mutex.Unlock()
 		return
 	}
 	// information setting
@@ -61,6 +69,8 @@ func Initialize() (information string, err error) {
 	if err != nil {
 		// set flag
 		initialized = false
+		// unlock
+		mutex.Unlock()
 		return
 	}
 	// read dictionary
@@ -68,10 +78,14 @@ func Initialize() (information string, err error) {
 	if err != nil {
 		// set flag
 		initialized = false
+		// unlock
+		mutex.Unlock()
 		return
 	}
 	// set flag
 	initialized = true
+	// unlock
+	mutex.Unlock()
 	return
 }
 
@@ -82,6 +96,8 @@ func CheckNetwork() (pass bool, information string) {
 		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
 		temp                 bool
 	)
+	// lock
+	mutex.Lock()
 	// begin
 	if setting.Online.Mode == 0 {
 		// offline mode
@@ -117,6 +133,8 @@ func CheckNetwork() (pass bool, information string) {
 	tm = time.Now()
 	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	information = timeString + information
+	// unlock
+	mutex.Unlock()
 	return
 }
 
@@ -128,9 +146,13 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 		localNoFound                bool
 		enableOnline                bool
 	)
+	// lock
+	mutex.Lock()
 	// return directly if the library has not been initialized
 	if initialized == false {
 		err = errors.New("the program have not been initialized")
+		// unlock
+		mutex.Unlock()
 		return
 	}
 	// collection: query and update
@@ -174,6 +196,8 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 			}
 		}
 	}
+	// unlock
+	mutex.Unlock()
 	return
 }
 
@@ -185,11 +209,11 @@ func Save() (success bool, information string) {
 		successDictionary     bool
 		informationDictionary string
 	)
-	// avoid multiple writing (.xlsx file) at the same time
-	mutexContent.Lock()
+	// lock
+	mutex.Lock()
+	// write
 	successCollection, informationCollection = collectionList.write()
 	successDictionary, informationDictionary = dictionaryList.write()
-	mutexContent.Unlock()
 	// merge
 	success = successCollection && successDictionary
 	information = informationCollection + informationDictionary
@@ -199,5 +223,7 @@ func Save() (success bool, information string) {
 		timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 		information = timeString + information
 	}
+	// unlock
+	mutex.Unlock()
 	return
 }
