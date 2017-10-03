@@ -82,15 +82,17 @@ func CheckNetwork() (pass bool, information string) {
 		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
 		temp                 bool
 	)
-	vocabularyAsk.Word = "apple"
-	vocabularyAsk.Advance = false
-	vocabularyAsk.Online = true
-	vocabularyAsk.DoNotRecord = true
+	// begin
 	if setting.Online.Mode == 0 {
 		// offline mode
 		information = "offline mode\n\n"
 		pass = true
 	} else {
+		// set word for online query
+		vocabularyAsk.Word = "apple"
+		vocabularyAsk.Advance = false
+		vocabularyAsk.Online = true
+		vocabularyAsk.DoNotRecord = true
 		// set setting.Online.Debug as false temporarily
 		temp = setting.Online.Debug
 		setting.Online.Debug = true
@@ -105,15 +107,16 @@ func CheckNetwork() (pass bool, information string) {
 				pass = false
 			}
 		}
+		if strings.Compare(information, "") == 0 {
+			information = "online mode, but no service is enabled\n\n"
+		}
 		// set setting.Online.Debug as its original value
 		setting.Online.Debug = temp
 	}
 	// get time
-	if strings.Compare(information, "") != 0 {
-		tm = time.Now()
-		timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-		information = timeString + information
-	}
+	tm = time.Now()
+	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
+	information = timeString + information
 	return
 }
 
