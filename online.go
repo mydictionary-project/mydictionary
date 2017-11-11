@@ -25,19 +25,19 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 		vocabularyAnswer        vocabulary4mydictionary.VocabularyAnswerStruct
 	)
 	// prepare
-	vocabularyAnswerChannel = make(chan vocabulary4mydictionary.VocabularyAnswerStruct, setting.Online.length)
+	vocabularyAnswerChannel = make(chan vocabulary4mydictionary.VocabularyAnswerStruct, Setting.Online.length)
 	// query
-	if setting.Online.Service.BingDictionary {
+	if Setting.Online.Service.BingDictionary {
 		go func() {
 			vocabularyAnswerChannel <- bingdictionary4mydictionary.Request(vocabularyAsk)
 		}()
 	}
-	if setting.Online.Service.IcibaCollins {
+	if Setting.Online.Service.IcibaCollins {
 		go func() {
 			vocabularyAnswerChannel <- icibacollins4mydictionary.Request(vocabularyAsk)
 		}()
 	}
-	if setting.Online.Service.MerriamWebster {
+	if Setting.Online.Service.MerriamWebster {
 		go func() {
 			vocabularyAnswerChannel <- merriamwebster4mydictionary.Request(vocabularyAsk)
 		}()
@@ -49,16 +49,16 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 	//
 	// Example:
 	//
-	//    if setting.Online.Service.ExambleService {
+	//    if Setting.Online.Service.ExambleService {
 	//    	go func() {
 	//    		vocabularyAnswerChannel <- example4mydictionary.Request(vocabularyAsk)
 	//    		}()
 	//    }()
 	//
 	// add to answer list
-	for i := 0; i < setting.Online.length; i++ {
+	for i := 0; i < Setting.Online.length; i++ {
 		vocabularyAnswer = <-vocabularyAnswerChannel
-		if setting.Online.Debug {
+		if Setting.Online.Debug {
 			vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 		} else if strings.Compare(vocabularyAnswer.Status, vocabulary4mydictionary.Basic) == 0 {
 			vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)

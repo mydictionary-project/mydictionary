@@ -3,7 +3,7 @@ package mydictionary
 import (
 	"encoding/json"
 	"io/ioutil"
-	"strings"
+	"os"
 
 	"github.com/zzc-tongji/rtoa"
 )
@@ -52,7 +52,7 @@ type settingStruct struct {
 }
 
 // read setting
-func (setting *settingStruct) read() (content string, err error) {
+func (setting *settingStruct) Read() (content string, err error) {
 	var (
 		buf  []byte
 		path string
@@ -124,6 +124,31 @@ func (setting *settingStruct) read() (content string, err error) {
 	//    	setting.Online.length++
 	//    }
 	//
-	content = strings.TrimRight(string(buf), "\n")
+	buf, err = json.MarshalIndent(setting, "", "\t")
+	content = string(buf)
+	return
+}
+
+// Write : write setting
+func (setting *settingStruct) Write() (err error) {
+	var (
+		buf  []byte
+		path string
+	)
+	// convert path
+	path, err = rtoa.Convert("mydictionary.setting.json", "")
+	if err != nil {
+		return
+	}
+	// write
+	buf, err = json.MarshalIndent(setting, "", "\t")
+	if err != nil {
+		return
+	}
+	err = os.Remove(path)
+	if err != nil {
+		return
+	}
+	err = ioutil.WriteFile(path, buf, 0644)
 	return
 }

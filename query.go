@@ -12,7 +12,7 @@ import (
 
 const (
 	// version
-	version = "v2.0.0"
+	version = "v2.1.0"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"
@@ -23,10 +23,11 @@ const (
 )
 
 var (
+	// Setting : mydictionary setting
+	Setting        settingStruct
 	initialized    bool
 	tm             time.Time
 	timeString     string
-	setting        settingStruct
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
 	mutex          sync.Mutex
@@ -53,8 +54,8 @@ func Initialize() (information string, err error) {
 	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 	// title
 	information = timeString + "mydictionary " + version + "\n\n"
-	// read setting
-	content, err = setting.read()
+	// read Setting
+	content, err = Setting.Read()
 	if err != nil {
 		// set flag
 		initialized = false
@@ -62,10 +63,10 @@ func Initialize() (information string, err error) {
 		mutex.Unlock()
 		return
 	}
-	// information setting
+	// information Setting
 	information += timeString + content + "\n\n"
 	// read collection
-	err = collectionList.read(&setting)
+	err = collectionList.read(&Setting)
 	if err != nil {
 		// set flag
 		initialized = false
@@ -74,7 +75,7 @@ func Initialize() (information string, err error) {
 		return
 	}
 	// read dictionary
-	err = dictionaryList.read(&setting)
+	err = dictionaryList.read(&Setting)
 	if err != nil {
 		// set flag
 		initialized = false
@@ -99,7 +100,7 @@ func CheckNetwork() (pass bool, information string) {
 	// lock
 	mutex.Lock()
 	// begin
-	if setting.Online.Mode == 0 {
+	if Setting.Online.Mode == 0 {
 		// offline mode
 		information = "offline mode\n\n"
 		pass = true
@@ -109,9 +110,9 @@ func CheckNetwork() (pass bool, information string) {
 		vocabularyAsk.Advance = false
 		vocabularyAsk.Online = true
 		vocabularyAsk.DoNotRecord = true
-		// set setting.Online.Debug as false temporarily
-		temp = setting.Online.Debug
-		setting.Online.Debug = true
+		// set Setting.Online.Debug as false temporarily
+		temp = Setting.Online.Debug
+		Setting.Online.Debug = true
 		// get result of online query
 		vocabularyAnswerList = requestOnline(vocabularyAsk)
 		pass = true
@@ -126,8 +127,8 @@ func CheckNetwork() (pass bool, information string) {
 		if strings.Compare(information, "") == 0 {
 			information = "online mode, but no service is enabled\n\n"
 		}
-		// set setting.Online.Debug as its original value
-		setting.Online.Debug = temp
+		// set Setting.Online.Debug as its original value
+		Setting.Online.Debug = temp
 	}
 	// get time
 	tm = time.Now()
@@ -173,9 +174,9 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 			break
 		}
 	}
-	enableOnline = setting.Online.modeContent.anyway ||
-		(setting.Online.modeContent.noFound && localNoFound) ||
-		(setting.Online.modeContent.userNeed && vocabularyAsk.Online)
+	enableOnline = Setting.Online.modeContent.anyway ||
+		(Setting.Online.modeContent.noFound && localNoFound) ||
+		(Setting.Online.modeContent.userNeed && vocabularyAsk.Online)
 	if enableOnline {
 		vocabularyAnswerList = requestOnline(vocabularyAsk)
 		vocabularyAnswerListPrepare = append(vocabularyAnswerListPrepare, vocabularyAnswerList...)
