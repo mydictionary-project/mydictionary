@@ -145,6 +145,8 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			vocabularyAnswer.Status = ""
 			// add to dictionary
 			dictionary.content = append(dictionary.content, vocabularyAnswer)
+			// set pointer
+			dictionary.content[len(dictionary.content)-1].Pointer = &(dictionary.content[len(dictionary.content)-1])
 		}
 	}
 	err = nil

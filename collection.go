@@ -146,6 +146,8 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			vocabularyAnswer.Status = ""
 			// add to collection
 			collection.content = append(collection.content, vocabularyAnswer)
+			// set pointer
+			collection.content[len(collection.content)-1].Pointer = &(collection.content[len(collection.content)-1])
 		}
 	}
 	err = nil
