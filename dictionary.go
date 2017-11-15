@@ -31,10 +31,15 @@ func (dictionary *dictionaryStruct) check(filePath string) (err error) {
 	if err != nil {
 		return
 	}
+RECHECK:
 	contentTemp = dictionary.xlsx.GetRows("sheet1")
 	if contentTemp == nil {
-		err = fmt.Errorf("incorrect format of file \"%s\": the 1st sheet is empty", dictionary.xlsx.Path)
-		return
+		dictionary.xlsx.NewSheet("sheet1")
+		goto RECHECK
+	}
+	if len(contentTemp) == 0 {
+		dictionary.xlsx.SetCellValue("sheet1", "A1", sn)
+		goto RECHECK
 	}
 	columnNumber = len(contentTemp[0])
 	// check existence of sheet header (column) in row 1
@@ -63,28 +68,28 @@ func (dictionary *dictionaryStruct) check(filePath string) (err error) {
 		}
 	}
 	if dictionary.columnIndex[wd] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, wd)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", wd)
+		goto RECHECK
 	}
 	if dictionary.columnIndex[def] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, def)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", def)
+		goto RECHECK
 	}
 	if dictionary.columnIndex[sn] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, sn)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", sn)
+		goto RECHECK
 	}
 	if dictionary.columnIndex[qc] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, qc)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qc)
+		goto RECHECK
 	}
 	if dictionary.columnIndex[qt] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, qt)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qt)
+		goto RECHECK
 	}
 	if dictionary.columnIndex[nt] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", dictionary.xlsx.Path, nt)
-		return
+		dictionary.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", nt)
+		goto RECHECK
 	}
 	return
 }
@@ -122,7 +127,7 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			// `xlsx:sn` -> .SerialNumber
 			vocabularyAnswer.SerialNumber, err = strconv.Atoi(dictionary.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[sn]), i)))
 			if err != nil {
-				vocabularyAnswer.SerialNumber = i
+				vocabularyAnswer.SerialNumber = i - 1
 			}
 			// `xlsx:qc` -> .QueryCounter
 			vocabularyAnswer.QueryCounter, err = strconv.Atoi(dictionary.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[qc]), i)))

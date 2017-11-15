@@ -32,10 +32,15 @@ func (collection *collectionStruct) check(filePath string) (err error) {
 	if err != nil {
 		return
 	}
+RECHECK:
 	contentTemp = collection.xlsx.GetRows("sheet1")
 	if contentTemp == nil {
-		err = fmt.Errorf("incorrect format of file \"%s\": the 1st sheet is empty", collection.xlsx.Path)
-		return
+		collection.xlsx.NewSheet("sheet1")
+		goto RECHECK
+	}
+	if len(contentTemp) == 0 {
+		collection.xlsx.SetCellValue("sheet1", "A1", sn)
+		goto RECHECK
 	}
 	columnNumber = len(contentTemp[0])
 	// check existence of sheet header (column) in row 1
@@ -64,28 +69,28 @@ func (collection *collectionStruct) check(filePath string) (err error) {
 		}
 	}
 	if collection.columnIndex[wd] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, wd)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", wd)
+		goto RECHECK
 	}
 	if collection.columnIndex[def] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, def)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", def)
+		goto RECHECK
 	}
 	if collection.columnIndex[sn] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, sn)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", sn)
+		goto RECHECK
 	}
 	if collection.columnIndex[qc] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, qc)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qc)
+		goto RECHECK
 	}
 	if collection.columnIndex[qt] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, qt)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qt)
+		goto RECHECK
 	}
 	if collection.columnIndex[nt] == -1 {
-		err = fmt.Errorf("incorrect format of file \"%s\": missing cell \"%s\" in row 1", collection.xlsx.Path, nt)
-		return
+		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", nt)
+		goto RECHECK
 	}
 	return
 }
@@ -123,7 +128,7 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			// `xlsx:sn` -> .SerialNumber
 			vocabularyAnswer.SerialNumber, err = strconv.Atoi(collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[sn]), i)))
 			if err != nil {
-				vocabularyAnswer.SerialNumber = i
+				vocabularyAnswer.SerialNumber = i - 1
 			}
 			// `xlsx:qc` -> .QueryCounter
 			vocabularyAnswer.QueryCounter, err = strconv.Atoi(collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qc]), i)))

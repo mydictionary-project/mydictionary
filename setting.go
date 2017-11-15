@@ -145,10 +145,7 @@ func (setting *settingStruct) Write() (err error) {
 	if err != nil {
 		return
 	}
-	err = os.Remove(path)
-	if err != nil {
-		return
-	}
+	os.Remove(path)
 	err = ioutil.WriteFile(path, buf, 0644)
 	return
 }
