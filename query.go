@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
@@ -92,43 +93,22 @@ func Initialize() (information string, err error) {
 
 // CheckNetwork : check network
 func CheckNetwork() (pass bool, information string) {
-	var (
-		vocabularyAsk        vocabulary4mydictionary.VocabularyAskStruct
-		vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct
-		temp                 bool
-	)
+	var err error
 	// lock
 	mutex.Lock()
 	// begin
 	if Setting.Online.Mode == 0 {
 		// offline mode
-		information = "offline mode\n\n"
+		information = "network: offline mode\n\n"
 		pass = true
 	} else {
-		// set word for online query
-		vocabularyAsk.Word = "apple"
-		vocabularyAsk.Advance = false
-		vocabularyAsk.Online = true
-		vocabularyAsk.DoNotRecord = true
-		// set Setting.Online.Debug as false temporarily
-		temp = Setting.Online.Debug
-		Setting.Online.Debug = true
-		// get result of online query
-		vocabularyAnswerList = requestOnline(vocabularyAsk)
-		pass = true
-		for i := 0; i < len(vocabularyAnswerList); i++ {
-			if vocabularyAnswerList[i].Status == vocabulary4mydictionary.Basic {
-				information += fmt.Sprintf("%s: OK\n\n", vocabularyAnswerList[i].SourceName)
-			} else {
-				information += fmt.Sprintf("%s: %s\n\n", vocabularyAnswerList[i].SourceName, vocabularyAnswerList[i].Status)
-				pass = false
-			}
+		_, err = goquery.NewDocument("https://www.baidu.com/")
+		if err != nil {
+			// network error
+			information = "network: " + err.Error() + "\n\n"
+		} else {
+			information = "network: OK\n\n"
 		}
-		if strings.Compare(information, "") == 0 {
-			information = "online mode, but no service is enabled\n\n"
-		}
-		// set Setting.Online.Debug as its original value
-		Setting.Online.Debug = temp
 	}
 	// get time
 	tm = time.Now()
