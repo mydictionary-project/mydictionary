@@ -66,3 +66,78 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 	}
 	return
 }
+
+func loadCache() (err error) {
+	// Bing Dictionary
+	err = bingdictionary4mydictionary.ReadCache(Setting.Online.Cache.Enable, Setting.Online.Cache.ShelfLifeDay)
+	if err != nil {
+		return
+	}
+	// iCIBA Collins
+	err = icibacollins4mydictionary.ReadCache(Setting.Online.Cache.Enable, Setting.Online.Cache.ShelfLifeDay)
+	if err != nil {
+		return
+	}
+	// Merriam Webster
+	err = merriamwebster4mydictionary.ReadCache(Setting.Online.Cache.Enable, Setting.Online.Cache.ShelfLifeDay)
+	if err != nil {
+		return
+	}
+	// NOTE:
+	//
+	// 1. Add your loading functions of services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	// Example:
+	//
+	//    // Example Service
+	//    err = example4mydictionary.ReadCache(Setting.Online.Cache.Enable, Setting.Online.Cache.ShelfLifeDay)
+	//    if err != nil {
+	//      return
+	//    }
+	//
+	return
+}
+
+func saveCache() (success bool, information string) {
+	var (
+		err  error
+		temp string
+	)
+	success = true
+	// Bing Dictionary
+	temp, err = bingdictionary4mydictionary.WriteCache()
+	if err != nil {
+		temp = err.Error() + "\n\n"
+		success = false
+	}
+	information += temp
+	// iCIBA Collins
+	temp, err = icibacollins4mydictionary.WriteCache()
+	if err != nil {
+		temp = err.Error() + "\n\n"
+		success = false
+	}
+	information += temp
+	// Merriam Webster
+	temp, err = merriamwebster4mydictionary.WriteCache()
+	if err != nil {
+		temp = err.Error() + "\n\n"
+		success = false
+	}
+	information += temp
+	// NOTE:
+	//
+	// 1. Add your loading functions of services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	//    // Example Service
+	//    temp, err = example4mydictionary.WriteCache()
+	//    if err != nil {
+	//    	temp = err.Error() + "\n\n"
+	//    	success = false
+	//    }
+	//    information += temp
+	//
+	return
+}

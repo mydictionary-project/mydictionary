@@ -134,6 +134,8 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			if err != nil {
 				vocabularyAnswer.QueryCounter = 0
 			}
+			// reset err
+			err = nil
 			// `xlsx:qt` -> .QueryTime
 			vocabularyAnswer.QueryTime = dictionary.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(dictionary.columnIndex[qt]), i))
 			// `xlsx:nt` -> .Note
@@ -154,7 +156,6 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			dictionary.content[len(dictionary.content)-1].Pointer = &(dictionary.content[len(dictionary.content)-1])
 		}
 	}
-	err = nil
 	return
 }
 

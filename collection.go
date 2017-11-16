@@ -135,6 +135,8 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			if err != nil {
 				vocabularyAnswer.QueryCounter = 0
 			}
+			// reset err
+			err = nil
 			// `xlsx:qt` -> .QueryTime
 			vocabularyAnswer.QueryTime = collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qt]), i))
 			// `xlsx:nt` -> .Note
@@ -155,7 +157,6 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			collection.content[len(collection.content)-1].Pointer = &(collection.content[len(collection.content)-1])
 		}
 	}
-	err = nil
 	return
 }
 

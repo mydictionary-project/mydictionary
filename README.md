@@ -64,55 +64,55 @@ Here is an example:
 
 ```json
 {
-	"collection":
-	[
+	"collection": [
 		{
-			"name":"bing-dictionary",
-			"filePath":"data/bing-dictionary.xlsx",
-			"readable":true,
-			"writable":true,
-			"onlineSource":"Bing Dictionary"
+			"name": "bing-dictionary",
+			"filePath": "data/bing-dictionary.xlsx",
+			"readable": true,
+			"writable": true,
+			"onlineSource": "Bing Dictionary"
 		},
 		{
-			"name":"iciba-collins",
-			"filePath":"data/iciba-collins.xlsx",
-			"readable":true,
-			"writable":true,
-			"onlineSource":"iCIBA Collins"
+			"name": "iciba-collins",
+			"filePath": "data/iciba-collins.xlsx",
+			"readable": true,
+			"writable": true,
+			"onlineSource": "iCIBA Collins"
 		},
 		{
-			"name":"merriam-webster",
-			"filePath":"data/merriam-webster.xlsx",
-			"readable":true,
-			"writable":true,
-			"onlineSource":"Merriam Webster"
+			"name": "merriam-webster",
+			"filePath": "data/merriam-webster.xlsx",
+			"readable": true,
+			"writable": true,
+			"onlineSource": "Merriam Webster"
 		}
 	],
-	"dictionary":
-	[
+	"dictionary": [
 		{
-			"name":"animal",
-			"filePath":"data/animal.xlsx",
-			"readable":true,
-			"writable":true
+			"name": "animal",
+			"filePath": "data/animal.xlsx",
+			"readable": true,
+			"writable": true
 		},
 		{
-			"name":"fruit",
-			"filePath":"data/fruit.xlsx",
-			"readable":true,
-			"writable":true
+			"name": "fruit",
+			"filePath": "data/fruit.xlsx",
+			"readable": true,
+			"writable": true
 		}
 	],
-	"online":
-	{
-		"mode":3,
-		"service":
-		{
-			"Bing Dictionary":true,
-			"iCIBA Collins":true,
-			"Merriam Webster":true
+	"online": {
+		"mode": 3,
+		"service": {
+			"Bing Dictionary": true,
+			"iCIBA Collins": true,
+			"Merriam Webster": true
 		},
-		"debug":true
+		"cache": {
+			"enable": true,
+			"shelfLifeDay": 7
+		},
+		"debug": false
 	}
 }
 ```
@@ -125,8 +125,8 @@ There are 3 structures in the *configuration*: `"collection"`, `"dictionary"` an
 
 - String `"name"`: it is the name of the *collection*.
 - String `"filePath"`: it is the file path of the *collection*. It can be a relative path base on the location of the application.
-- Boolean `"readable"`: If it is `false`, the *collection* will be ignored by the library. By setting this, we can disable the *collection* without removing the whole item.
-- Boolean `"writable"`: If it is `true`, the library will be allowed to *record* *vocabularies* of the *collection*.
+- Boolean `"readable"`: if it is `false`, the *collection* will be ignored by the library. By setting this, we can disable the *collection* without removing the whole item.
+- Boolean `"writable"`: if it is `true`, the library will be allowed to *record* *vocabularies* of the *collection*.
 - String `"onlineSource"`: each *collection* is only able to record *vocabularies* from one *service*, but the library can get *vocabularies* from several different *services*. So we need this member to indicate the corresponding relation between the *collection* and the *service*.
 
 ##### 2.4.2. dictionary
@@ -135,8 +135,8 @@ There are 3 structures in the *configuration*: `"collection"`, `"dictionary"` an
 
 - String `"name"`: it is the name of the *dictionary*.
 - String `"filePath"`: it is the file path of the *dictionary*. It can be a relative path base on the location of the application.
-- Boolean `"readable"`: If it is `false`, the *dictionary* will be ignored by the library. By setting this, we can disable the *dictionary* without removing the whole item.
-- Boolean `"writable"`: If it is `true`, the library will be allowed to *record* *vocabularies* of the *dictionary*.
+- Boolean `"readable"`: if it is `false`, the *dictionary* will be ignored by the library. By setting this, we can disable the *dictionary* without removing the whole item.
+- Boolean `"writable"`: if it is `true`, the library will be allowed to *record* *vocabularies* of the *dictionary*.
 
 ##### 2.4.3. online
 
@@ -160,7 +160,14 @@ Here is the possible value:
 
 `"service"` is an array. The key-value (string-boolean) pair of each item determines whether the *service* is enabled.
 
-###### 2.3.4.3. debug
+###### 2.3.4.3. cache
+
+`"cache"` is a structure and has got these members:
+
+- Boolean `"enable"`: if it is `true`, cache will be enabled.
+- Integer `"shelfLifeDay"`: it determines the shelf life (day) of items in cache.
+
+###### 2.3.4.4. debug
 
 `"debug"` indicates whether the library is in debug mode. The default value is `false`. Do not modify it if you are not developer. Get further information from repository [example4mydictionary](https://github.com/zzc-tongji/example4mydictionary).
 

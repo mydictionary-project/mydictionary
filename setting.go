@@ -47,7 +47,11 @@ type settingStruct struct {
 			//
 		} `json:"service"`
 		length int
-		Debug  bool `json:"debug"`
+		Cache  struct {
+			Enable       bool  `json:"enable"`
+			ShelfLifeDay int64 `json:"shelfLifeDay"`
+		} `json:"cache"`
+		Debug bool `json:"debug"`
 	} `json:"online"`
 }
 

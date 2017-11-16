@@ -13,7 +13,7 @@ import (
 
 const (
 	// version
-	version = "v2.3.0"
+	version = "v2.4.0"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"
@@ -77,6 +77,15 @@ func Initialize() (information string, err error) {
 	}
 	// read dictionary
 	err = dictionaryList.read(&Setting)
+	if err != nil {
+		// set flag
+		initialized = false
+		// unlock
+		mutex.Unlock()
+		return
+	}
+	// cache
+	err = loadCache()
 	if err != nil {
 		// set flag
 		initialized = false
@@ -189,15 +198,19 @@ func Save() (success bool, information string) {
 		informationCollection string
 		successDictionary     bool
 		informationDictionary string
+		successCache          bool
+		informationCache      string
 	)
 	// lock
 	mutex.Lock()
 	// write
 	successCollection, informationCollection = collectionList.write()
 	successDictionary, informationDictionary = dictionaryList.write()
+	// cache
+	successCache, informationCache = saveCache()
 	// merge
-	success = successCollection && successDictionary
-	information = informationCollection + informationDictionary
+	success = successCollection && successDictionary && successCache
+	information = informationCollection + informationDictionary + informationCache
 	// get
 	if strings.Compare(information, "") != 0 {
 		tm = time.Now()
