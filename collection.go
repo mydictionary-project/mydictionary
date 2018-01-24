@@ -16,7 +16,9 @@ type collectionStruct struct {
 	readable     bool
 	writable     bool
 	onlineSource string
+	index        int
 	xlsx         *excelize.File
+	sheetName    string
 	columnIndex  map[string]int
 	content      []vocabulary4mydictionary.VocabularyAnswerStruct
 }
@@ -24,23 +26,49 @@ type collectionStruct struct {
 // open and check .xlsx file
 func (collection *collectionStruct) check(filePath string) (err error) {
 	var (
-		contentTemp  [][]string
-		columnNumber int
+		recheckCounter    int
+		recheckUpperLimit int
+		contentTemp       [][]string
+		columnNumber      int
 	)
 	// file -> ram image
 	collection.xlsx, err = excelize.OpenFile(filePath)
 	if err != nil {
 		return
 	}
+	// recheck
+	recheckCounter = 0
+	recheckUpperLimit = 10
 RECHECK:
-	contentTemp = collection.xlsx.GetRows("sheet1")
-	if contentTemp == nil {
-		collection.xlsx.NewSheet("sheet1")
-		goto RECHECK
+	collection.sheetName = collection.xlsx.GetSheetMap()[1]
+	if strings.Compare(collection.sheetName, "") == 0 {
+		// no worksheet in workbook: create a worksheet
+		if strings.Compare(collection.name, "") == 0 {
+			collection.xlsx.NewSheet("collection")
+		} else {
+			collection.xlsx.NewSheet(collection.name)
+		}
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
+	contentTemp = collection.xlsx.GetRows(collection.sheetName)
 	if len(contentTemp) == 0 {
-		collection.xlsx.SetCellValue("sheet1", "A1", sn)
-		goto RECHECK
+		// empty worksheet: create row 1
+		collection.xlsx.SetCellValue(collection.sheetName, "A1", sn)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	columnNumber = len(contentTemp[0])
 	// check existence of sheet header (column) in row 1
@@ -69,28 +97,70 @@ RECHECK:
 		}
 	}
 	if collection.columnIndex[wd] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", wd)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", wd)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	if collection.columnIndex[def] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", def)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", def)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	if collection.columnIndex[sn] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", sn)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", sn)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	if collection.columnIndex[qc] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qc)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", qc)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	if collection.columnIndex[qt] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", qt)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", qt)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	if collection.columnIndex[nt] == -1 {
-		collection.xlsx.SetCellValue("sheet1", excelize.ToAlphaString(len(contentTemp[0]))+"1", nt)
-		goto RECHECK
+		collection.xlsx.SetCellValue(collection.sheetName, excelize.ToAlphaString(len(contentTemp[0]))+"1", nt)
+		// recheck
+		if recheckCounter < recheckUpperLimit {
+			recheckCounter++
+			goto RECHECK
+		} else {
+			err = fmt.Errorf("there are format errors in file \"%s\"", filePath)
+			return
+		}
 	}
 	return
 }
@@ -112,35 +182,35 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 		// ram image -> content
 		for i := 2; ; i++ {
 			// `xlsx:wd` -> .Word
-			str = collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[wd]), i))
+			str = collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[wd]), i))
 			if strings.Compare(str, "") == 0 {
 				break
 			}
 			vocabularyAnswer.Word = str
 			// `xlsx:def` -> .Define
-			str = collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[def]), i))
+			str = collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[def]), i))
 			str = strings.TrimSpace(str)
-			vocabularyAnswer.Define = strings.Split(str, "\n")
-			if len(vocabularyAnswer.Define) == 1 &&
-				strings.Compare(vocabularyAnswer.Define[0], "") == 0 {
-				vocabularyAnswer.Define = nil
+			vocabularyAnswer.Definition = strings.Split(str, "\n")
+			if len(vocabularyAnswer.Definition) == 1 &&
+				strings.Compare(vocabularyAnswer.Definition[0], "") == 0 {
+				vocabularyAnswer.Definition = nil
 			}
 			// `xlsx:sn` -> .SerialNumber
-			vocabularyAnswer.SerialNumber, err = strconv.Atoi(collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[sn]), i)))
+			vocabularyAnswer.SerialNumber, err = strconv.Atoi(collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[sn]), i)))
 			if err != nil {
 				vocabularyAnswer.SerialNumber = i - 1
 			}
 			// `xlsx:qc` -> .QueryCounter
-			vocabularyAnswer.QueryCounter, err = strconv.Atoi(collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qc]), i)))
+			vocabularyAnswer.QueryCounter, err = strconv.Atoi(collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qc]), i)))
 			if err != nil {
 				vocabularyAnswer.QueryCounter = 0
 			}
 			// reset err
 			err = nil
 			// `xlsx:qt` -> .QueryTime
-			vocabularyAnswer.QueryTime = collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qt]), i))
+			vocabularyAnswer.QueryTime = collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qt]), i))
 			// `xlsx:nt` -> .Note
-			str = collection.xlsx.GetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[nt]), i))
+			str = collection.xlsx.GetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[nt]), i))
 			str = strings.TrimSpace(str)
 			vocabularyAnswer.Note = strings.Split(str, "\n")
 			if len(vocabularyAnswer.Note) == 1 &&
@@ -149,12 +219,13 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			}
 			// others
 			vocabularyAnswer.SourceName = collection.name
-			vocabularyAnswer.Type = vocabulary4mydictionary.Collection
+			vocabularyAnswer.Location.TableType = vocabulary4mydictionary.Collection
 			vocabularyAnswer.Status = ""
 			// add to collection
 			collection.content = append(collection.content, vocabularyAnswer)
-			// set pointer
-			collection.content[len(collection.content)-1].Pointer = &(collection.content[len(collection.content)-1])
+			// set location
+			collection.content[len(collection.content)-1].Location.TableIndex = collection.index
+			collection.content[len(collection.content)-1].Location.ItemIndex = len(collection.content) - 1
 		}
 	}
 	return
@@ -166,19 +237,19 @@ func (collection *collectionStruct) write() (information string, err error) {
 		// content -> ram image
 		for i := 0; i < len(collection.content); i++ {
 			// set row height
-			collection.xlsx.SetRowHeight("sheet1", i+1, collection.xlsx.GetRowHeight("sheet1", 0))
+			collection.xlsx.SetRowHeight(collection.sheetName, i+1, collection.xlsx.GetRowHeight(collection.sheetName, 0))
 			// .Word -> `xlsx:wd`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[wd]), i+2), collection.content[i].Word)
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[wd]), i+2), collection.content[i].Word)
 			// .Define -> `xlsx:def`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[def]), i+2), strings.Join(collection.content[i].Define, "\n"))
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[def]), i+2), strings.Join(collection.content[i].Definition, "\n"))
 			// .SerialNumber -> `xlsx:sn`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[sn]), i+2), collection.content[i].SerialNumber)
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[sn]), i+2), collection.content[i].SerialNumber)
 			// .QueryCounter -> `xlsx:qc`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qc]), i+2), collection.content[i].QueryCounter)
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qc]), i+2), collection.content[i].QueryCounter)
 			// .QueryTime -> `xlsx:qt`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qt]), i+2), collection.content[i].QueryTime)
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[qt]), i+2), collection.content[i].QueryTime)
 			// .Note -> `xlsx:nt`
-			collection.xlsx.SetCellValue("sheet1", fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[nt]), i+2), strings.Join(collection.content[i].Note, "\n"))
+			collection.xlsx.SetCellValue(collection.sheetName, fmt.Sprintf("%s%d", excelize.ToAlphaString(collection.columnIndex[nt]), i+2), strings.Join(collection.content[i].Note, "\n"))
 		}
 		// ram image -> file
 		err = collection.xlsx.Save()
@@ -228,8 +299,8 @@ func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 					vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 					goto ADVANCE_END
 				}
-				for j := 0; j < len(collection.content[i].Define); j++ {
-					if strings.Contains(collection.content[i].Define[j], vocabularyAsk.Word) {
+				for j := 0; j < len(collection.content[i].Definition); j++ {
+					if strings.Contains(collection.content[i].Definition[j], vocabularyAsk.Word) {
 						vocabularyAnswer = collection.content[i]
 						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
@@ -266,7 +337,7 @@ func (collection *collectionStruct) add(vocabularyAnswerList []vocabulary4mydict
 		for i := 0; i < len(vocabularyAnswerList); i++ {
 			if strings.Compare(vocabularyAnswerList[i].Status, vocabulary4mydictionary.Basic) == 0 {
 				// only for vocabulary with define from basic query
-				if vocabularyAnswerList[i].Type == vocabulary4mydictionary.Online {
+				if vocabularyAnswerList[i].Location.TableType == vocabulary4mydictionary.Online {
 					// from online: check whether online source index match or not
 					if strings.Compare(vocabularyAnswerList[i].SourceName, collection.onlineSource) == 0 {
 						index = i
@@ -286,7 +357,7 @@ func (collection *collectionStruct) add(vocabularyAnswerList []vocabulary4mydict
 			vocabularyAnswer.QueryCounter = 1
 			vocabularyAnswer.QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 			vocabularyAnswer.SourceName = collection.name
-			vocabularyAnswer.Type = vocabulary4mydictionary.Collection
+			vocabularyAnswer.Location.TableType = vocabulary4mydictionary.Collection
 			vocabularyAnswer.Status = ""
 			// add
 			collection.content = append(collection.content, vocabularyAnswer)

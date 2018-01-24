@@ -13,6 +13,7 @@ func (collectionList *collectionListSlice) read(setting *settingStruct) (err err
 	)
 	// read collection
 	for i := 0; i < len(setting.Collection); i++ {
+		collection.index = i
 		collection.name = setting.Collection[i].Name
 		collection.readable = setting.Collection[i].Readable
 		collection.writable = setting.Collection[i].Writable

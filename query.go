@@ -1,19 +1,14 @@
 package mydictionary
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 const (
-	// version
-	version = "v2.4.0"
 	// title in .xlsx file
 	wd  = "Word"
 	def = "Define"
@@ -25,10 +20,9 @@ const (
 
 var (
 	// Setting : mydictionary setting
-	Setting        settingStruct
-	initialized    bool
-	tm             time.Time
-	timeString     string
+	Setting     settingStruct
+	initialized bool
+
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
 	mutex          sync.Mutex
@@ -39,25 +33,18 @@ func init() {
 }
 
 // Initialize : initialize the library
-func Initialize() (information string, err error) {
-	var content string
+func Initialize() (success bool, information string) {
+	var (
+		err     error
+		content string
+	)
 	// lock
 	mutex.Lock()
-	// return directly if the library has been initialized
-	if initialized {
-		err = errors.New("the program should be initialized only once")
-		// unlock
-		mutex.Unlock()
-		return
-	}
-	// get time
-	tm = time.Now()
-	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-	// title
-	information = timeString + "mydictionary " + version + "\n\n"
 	// read Setting
 	content, err = Setting.Read()
 	if err != nil {
+		information = err.Error() + "\n\n"
+		success = false
 		// set flag
 		initialized = false
 		// unlock
@@ -65,10 +52,12 @@ func Initialize() (information string, err error) {
 		return
 	}
 	// information Setting
-	information += timeString + content + "\n\n"
+	information = content + "\n\n"
 	// read collection
 	err = collectionList.read(&Setting)
 	if err != nil {
+		information = err.Error() + "\n\n"
+		success = false
 		// set flag
 		initialized = false
 		// unlock
@@ -78,6 +67,8 @@ func Initialize() (information string, err error) {
 	// read dictionary
 	err = dictionaryList.read(&Setting)
 	if err != nil {
+		information = err.Error() + "\n\n"
+		success = false
 		// set flag
 		initialized = false
 		// unlock
@@ -87,12 +78,16 @@ func Initialize() (information string, err error) {
 	// cache
 	err = loadCache()
 	if err != nil {
+		information = err.Error() + "\n\n"
+		success = false
 		// set flag
 		initialized = false
 		// unlock
 		mutex.Unlock()
 		return
 	}
+	// success
+	success = true
 	// set flag
 	initialized = true
 	// unlock
@@ -101,35 +96,33 @@ func Initialize() (information string, err error) {
 }
 
 // CheckNetwork : check network
-func CheckNetwork() (pass bool, information string) {
+func CheckNetwork() (success bool, information string) {
 	var err error
 	// lock
 	mutex.Lock()
 	// begin
 	if Setting.Online.Mode == 0 {
 		// offline mode
+		success = true
 		information = "network: offline mode\n\n"
-		pass = true
 	} else {
 		_, err = goquery.NewDocument("https://www.baidu.com/")
 		if err != nil {
 			// network error
+			success = false
 			information = "network: " + err.Error() + "\n\n"
 		} else {
+			success = true
 			information = "network: OK\n\n"
 		}
 	}
-	// get time
-	tm = time.Now()
-	timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-	information = timeString + information
 	// unlock
 	mutex.Unlock()
 	return
 }
 
 // Query : query
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyResult VocabularyResultStruct, err error) {
+func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct) {
 	var (
 		vocabularyAnswerList        []vocabulary4mydictionary.VocabularyAnswerStruct
 		vocabularyAnswerListPrepare []vocabulary4mydictionary.VocabularyAnswerStruct
@@ -139,8 +132,8 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabular
 	// lock
 	mutex.Lock()
 	// return directly if the library has not been initialized
-	if initialized == false {
-		err = errors.New("the program have not been initialized")
+	success = initialized
+	if success == false {
 		// unlock
 		mutex.Unlock()
 		return
@@ -203,6 +196,14 @@ func Save() (success bool, information string) {
 	)
 	// lock
 	mutex.Lock()
+	// return directly if the library has not been initialized
+	if initialized == false {
+		success = false
+		information = "MYDICTIONARY has not been initialized.\n\n"
+		// unlock
+		mutex.Unlock()
+		return
+	}
 	// write
 	successCollection, informationCollection = collectionList.write()
 	successDictionary, informationDictionary = dictionaryList.write()
@@ -211,12 +212,75 @@ func Save() (success bool, information string) {
 	// merge
 	success = successCollection && successDictionary && successCache
 	information = informationCollection + informationDictionary + informationCache
-	// get
-	if strings.Compare(information, "") != 0 {
-		tm = time.Now()
-		timeString = fmt.Sprintf("[%04d-%02d-%02d %02d:%02d:%02d]\n\n", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
-		information = timeString + information
+	// unlock
+	mutex.Unlock()
+	return
+}
+
+// Edit : edit
+func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string) {
+	// lock
+	mutex.Lock()
+	// return directly if the library has not been initialized
+	if initialized == false {
+		success = false
+		information = "MYDICTIONARY has not been initialized.\n\n"
+		// unlock
+		mutex.Unlock()
+		return
 	}
+	// check
+	// table type
+	if vocabularyEdit.Location.TableType != vocabulary4mydictionary.Collection &&
+		vocabularyEdit.Location.TableType != vocabulary4mydictionary.Dictionary {
+		success = false
+		information = "invalid variable \"TableType\"\n\n"
+		// unlock
+		mutex.Unlock()
+		return
+	}
+	// location
+	if vocabularyEdit.Location.TableType == vocabulary4mydictionary.Collection {
+		if vocabularyEdit.Location.TableIndex < 0 || vocabularyEdit.Location.TableIndex >= len(collectionList) {
+			success = false
+			information = "invalid variable \"Location.TableIndex\"\n\n"
+			// unlock
+			mutex.Unlock()
+			return
+		}
+		if vocabularyEdit.Location.ItemIndex < 0 || vocabularyEdit.Location.ItemIndex >= len(collectionList[vocabularyEdit.Location.TableIndex].content) {
+			success = false
+			information = "invalid variable \"Location.ItemIndex\"\n\n"
+			// unlock
+			mutex.Unlock()
+			return
+		}
+	} else { // vocabularyEdit.TableType == vocabulary4mydictionary.Dictionary
+		if vocabularyEdit.Location.TableIndex < 0 || vocabularyEdit.Location.TableIndex >= len(dictionaryList) {
+			success = false
+			information = "invalid variable \"Location.TableIndex\"\n\n"
+			// unlock
+			mutex.Unlock()
+			return
+		}
+		if vocabularyEdit.Location.ItemIndex < 0 || vocabularyEdit.Location.ItemIndex >= len(dictionaryList[vocabularyEdit.Location.TableIndex].content) {
+			success = false
+			information = "invalid variable \"Location.ItemIndex\"\n\n"
+			// unlock
+			mutex.Unlock()
+			return
+		}
+	}
+	// edit
+	if vocabularyEdit.Location.TableType == vocabulary4mydictionary.Collection {
+		collectionList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Note = strings.Split(strings.TrimSpace(vocabularyEdit.Note), "\n")
+		collectionList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Definition = strings.Split(strings.TrimSpace(vocabularyEdit.Definition), "\n")
+	} else { // vocabularyEdit.TableType == vocabulary4mydictionary.Dictionary
+		dictionaryList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Note = strings.Split(strings.TrimSpace(vocabularyEdit.Note), "\n")
+		dictionaryList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Definition = strings.Split(strings.TrimSpace(vocabularyEdit.Definition), "\n")
+	}
+	success = true
+	information = "edit: OK\n\n"
 	// unlock
 	mutex.Unlock()
 	return

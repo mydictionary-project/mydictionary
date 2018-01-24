@@ -13,6 +13,7 @@ func (dictionaryList *dictionaryListSlice) read(setting *settingStruct) (err err
 	)
 	// read dictionary
 	for i := 0; i < len(setting.Dictionary); i++ {
+		dictionary.index = i
 		dictionary.name = setting.Dictionary[i].Name
 		dictionary.readable = setting.Dictionary[i].Readable
 		dictionary.writable = setting.Dictionary[i].Writable
