@@ -12,11 +12,13 @@ MYDICTIONARY is a library designed by golang. It provides the API for developers
 
 ***Vocabulary*** contains word, definitions, notes and other necessary information.
 
+Get further information from [here](https://github.com/zzc-tongji/vocabulary4mydictionary).
+
 #### 2.2. Service
 
 MYDICTIONARY can grasp pages from websites and extract information to build *vocabularies*. This process is called ***service***. By doing this, MYDICTIONARY enables us to get *vocabularies* which are not included in *collections* or *dictionaries*.
 
-Here are *services* which MYDICTIONARY provides now:
+MYDICTIONARY provides these *services* currently:
 
 - Bing Dictionary
 - iCIBA Collins
@@ -28,7 +30,7 @@ Here are *services* which MYDICTIONARY provides now:
 - **All of these information are prohibited for any form of commercial use.**
 - **I am NOT accountable for misappropriation of these information.**
 
-Developers can designed their own *service*. Get further information from [here](https://github.com/zzc-tongji/service4mydictionary).
+Get further information from [here](https://github.com/zzc-tongji/service4mydictionary).
 
 #### 2.3. Collection & Dictionary
 
@@ -176,32 +178,11 @@ For each *service*, its cache will correspond to a cache file of the same name. 
 
 ###### 2.3.4.4. debug
 
-`"debug"` indicates whether MYDICTIONARY is in debug mode. The default value is `false`. Do not modify it if you are not developer. Get further information from [here](https://github.com/zzc-tongji/service4mydictionary).
+`"debug"` indicates whether MYDICTIONARY is in debug mode. The default value is `false`. Do not modify it if you are not developer. Get further information from [here](https://github.com/zzc-tongji/service4mydictionary#33-create-service-by-yourself).
 
 ### 3. API
 
-#### 3.1. Vocabulary
-
-##### 3.1.1. VocabularyAsk & VocabularyAnswer
-
-Get further information from [here](https://github.com/zzc-tongji/vocabulary4mydictionary).
-
-##### 3.1.2. VocabularyResultStruct
-
-```go
-type VocabularyResultStruct struct {
-	Basic   []vocabulary4mydictionary.VocabularyAnswerStruct `json:"basic"`
-	Advance []vocabulary4mydictionary.VocabularyAnswerStruct `json:"advance"`
-}
-```
-
-`Basic` are made up by *vocabularies* come from *basic query*.
-
-`Advance` are made up by *vocabularies* come from *advanced query*.
-
-#### 3.2. Function
-
-##### 3.2.1. Initialize
+#### 3.1. Initialize
 
 ```go
 func Initialize() (success bool, information string)
@@ -223,7 +204,7 @@ Return values:
 - If success, `success` will be `true`, and the content of the *configuration* will be returned by `information`.
 - If failure, `success` will be `false`, the content of error will be returned by `information`.
 
-##### 3.2.2. CheckNetwork
+#### 3.2. CheckNetwork
 
 ```go
 func CheckNetwork() (success bool, information string)
@@ -237,10 +218,10 @@ Return values:
 - If not, `success` will be `false`.
 - `information` will provide further information.
 
-##### 3.2.3. Query
+#### 3.3. Query
 
 ```go
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct)
+func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct)
 ```
 
 It is the core function of MYDICTIONARY.
@@ -257,7 +238,7 @@ Return values:
 - If success, `success` will be `true`, and the result will be returned by `vocabularyResult`.
 - If MYDICTIONARY has not been initialized, `success` will be `false`.
 
-##### 3.2.4. Save
+#### 3.4. Save
 
 ```go
 func Save() (success bool, information string)
@@ -275,7 +256,7 @@ Return values:
 - If not, `success` will be `false`.
 - `information` will provide further information.
 
-##### 5.2.5. Edit
+#### 3.5. Edit
 
 ```Go
 func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)

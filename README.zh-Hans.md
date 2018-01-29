@@ -12,11 +12,13 @@ MYDICTIONARY是一个golang库。该库提供为开发者提供一组API，以�
 
 ***词条*** 包括词汇、释义、笔记和其他必要信息。
 
+从[这里](https://github.com/zzc-tongji/vocabulary4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
+
 #### 2.2. 在线服务
 
 MYDICTIONARY能够从网站获取页面、提取信息并构建*词条*。这个过程称为*在线服务*。这使我们能够获得*生词本*或*离线词典*中没有的*词条*。
 
-MYDICTIONARY现在提供下列*在线服务*：
+MYDICTIONARY目前提供下列*在线服务*：
 
 - 必应词典
 - 金山词霸-柯林斯词典
@@ -28,7 +30,7 @@ MYDICTIONARY现在提供下列*在线服务*：
 - **上述信息禁止用于一切形式的商业用途。**
 - **滥用上述信息产生的一切后果与本人无关。**
 
-开发者可以自行设计*在线服务*。从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
+从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
 
 #### 2.3. 生词本和离线词典
 
@@ -170,38 +172,17 @@ MYDICTIONARY现在提供下列*在线服务*：
 
 ###### 2.3.4.3. cache
 
-如果`"enable"`设定为`true`，那么MYDICTIONARY将缓存从*在线服务*获得的查询结果若干天（取决于`"shelfLifeDay"`）。**该功能会显著增加联网查询的速度。**
+如果`"enable"`设定为`true`，那么MYDICTIONARY将缓存从*在线服务*获得的查询结果若干天（取决于`"shelfLifeDay"`）。**这会显著增加联网查询的速度。**
 
 每个*在线服务*的缓存会对应一个同名缓存文件。缓存文件位于*默认位置*下的`cache/`目录中。
 
 ###### 2.3.4.4. debug
 
-`"debug"`决定了MYDICTIONARY是否处于调试模式。默认值为`false`。非开发者请勿更改。从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
+`"debug"`决定了MYDICTIONARY是否处于调试模式。默认值为`false`。非开发者请勿更改。从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md#33-%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%A8%E7%BA%BF%E6%9C%8D%E5%8A%A1)获取更多信息。
 
-### 3. 接口
+### 3. API
 
-#### 3.1. 词条
-
-##### 3.1.1. VocabularyAsk & VocabularyAnswer
-
-从[这里](https://github.com/zzc-tongji/vocabulary4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
-
-##### 3.1.2. VocabularyResultStruct
-
-```go
-type VocabularyResultStruct struct {
-	Basic   []vocabulary4mydictionary.VocabularyAnswerStruct `json:"basic"`
-	Advance []vocabulary4mydictionary.VocabularyAnswerStruct `json:"advance"`
-}
-```
-
-`Basic`由来自*基本查询*的*词条*构成。
-
-`Advance`由来自*高级查询*的*词条*构成。
-
-#### 3.2. 函数
-
-##### 3.2.1. Initialize
+#### 3.1. Initialize
 
 ```go
 func Initialize() (success bool, information string)
@@ -223,7 +204,7 @@ func Initialize() (success bool, information string)
 - 如果成功，那么`success`为`true`。同时，*配置*的内容通过`information`返回。
 - 如果失败，那么`success`为`false`。同时，错误信息通过`information`返回。
 
-##### 3.2.2. CheckNetwork
+#### 3.2. CheckNetwork
 
 ```go
 func CheckNetwork() (success bool, information string)
@@ -237,10 +218,10 @@ func CheckNetwork() (success bool, information string)
 - 否则，那么`success`为`false`。
 - `information`将会提供更多的信息。
 
-##### 3.2.3. Query
+#### 3.3. Query
 
 ```go
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct)
+func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct)
 ```
 
 该函数是MYDICTIONARY的核心。
@@ -257,7 +238,7 @@ Return values:
 - 如果成功，那么`success`为`true`，结果会通过`vocabularyResult`返回。
 - 如果MYDICTIONARY还未被初始化，那么`success`为`false`。
 
-##### 3.2.4. Save
+#### 3.4. Save
 
 ```go
 func Save() (success bool, information string)
@@ -275,7 +256,7 @@ func Save() (success bool, information string)
 - 否则，那么`success`为`false`。
 - `information`将会提供更多的信息。
 
-##### 5.2.5. Edit
+#### 3.5. Edit
 
 ```Go
 func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/zzc-tongji/rtoa"
+	"github.com/zzc-tongji/service4mydictionary"
 )
 
 // setting
@@ -34,6 +35,7 @@ type settingStruct struct {
 			BingDictionary bool `json:"Bing Dictionary"`
 			IcibaCollins   bool `json:"iCIBA Collins"`
 			MerriamWebster bool `json:"Merriam Webster"`
+			//
 			// NOTE:
 			//
 			// 1. Add your services as public members above, like the example below.
@@ -43,11 +45,10 @@ type settingStruct struct {
 			//
 			// Example:
 			//
-			//    ExambleService bool `json:"exambleService"`
+			//    Service bool `json:"Service"`
 			//
 		} `json:"service"`
-		length int
-		Cache  struct {
+		Cache struct {
 			Enable       bool  `json:"enable"`
 			ShelfLifeDay int64 `json:"shelfLifeDay"`
 		} `json:"cache"`
@@ -75,7 +76,28 @@ func (setting *settingStruct) Read() (content string, err error) {
 	if err != nil {
 		return
 	}
-	// set online mode content
+	// set online
+	if setting.Online.Service.BingDictionary {
+		onlineList = append(onlineList, new(service4mydictionary.BingDictionaryStruct))
+	}
+	if setting.Online.Service.IcibaCollins {
+		onlineList = append(onlineList, new(service4mydictionary.IcibaCollinsStruct))
+	}
+	if setting.Online.Service.MerriamWebster {
+		onlineList = append(onlineList, new(service4mydictionary.MerriamWebsterStruct))
+	}
+	//
+	// NOTE:
+	//
+	// 1. Add your functions of services above, like the example below.
+	// 2. Do not edit this note.
+	//
+	// Example:
+	//
+	//    if setting.Online.Service.Service {
+	//    	onlineList = append(onlineList, new(service4mydictionary.Service))
+	//    }
+	//
 	if setting.Online.Mode < 0 {
 		setting.Online.Mode = -setting.Online.Mode
 	}
@@ -106,28 +128,6 @@ func (setting *settingStruct) Read() (content string, err error) {
 		setting.Online.modeContent.anyway = true
 		break
 	}
-	// set online length
-	setting.Online.length = 0
-	if setting.Online.Service.BingDictionary {
-		setting.Online.length++
-	}
-	if setting.Online.Service.IcibaCollins {
-		setting.Online.length++
-	}
-	if setting.Online.Service.MerriamWebster {
-		setting.Online.length++
-	}
-	// NOTE:
-	//
-	// 1. Add your services above, like the example below.
-	// 2. Do not edit this note.
-	//
-	// Example:
-	//
-	//    if setting.Online.Service.ExambleService {
-	//    	setting.Online.length++
-	//    }
-	//
 	buf, err = json.MarshalIndent(setting, "", "\t")
 	content = string(buf)
 	return

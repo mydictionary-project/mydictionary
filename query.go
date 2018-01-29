@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/zzc-tongji/service4mydictionary"
 	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
@@ -20,11 +21,11 @@ const (
 
 var (
 	// Setting : mydictionary setting
-	Setting     settingStruct
-	initialized bool
-
+	Setting        settingStruct
+	initialized    bool
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
+	onlineList     []service4mydictionary.ServiceInterface
 	mutex          sync.Mutex
 )
 
@@ -122,7 +123,7 @@ func CheckNetwork() (success bool, information string) {
 }
 
 // Query : query
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct) {
+func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct) {
 	var (
 		vocabularyAnswerList        []vocabulary4mydictionary.VocabularyAnswerStruct
 		vocabularyAnswerListPrepare []vocabulary4mydictionary.VocabularyAnswerStruct
