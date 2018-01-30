@@ -1,27 +1,20 @@
 package mydictionary
 
-import "github.com/zzc-tongji/rtoa"
+import "path/filepath"
 
 // dictionart list
 type dictionaryListSlice []dictionaryStruct
 
 // read all dictionary from .xlsx file
 func (dictionaryList *dictionaryListSlice) read(setting *settingStruct) (err error) {
-	var (
-		dictionary dictionaryStruct
-		str        string
-	)
+	var dictionary dictionaryStruct
 	// read dictionary
 	for i := 0; i < len(setting.Dictionary); i++ {
 		dictionary.index = i
 		dictionary.name = setting.Dictionary[i].Name
 		dictionary.readable = setting.Dictionary[i].Readable
 		dictionary.writable = setting.Dictionary[i].Writable
-		str, err = rtoa.Convert(setting.Dictionary[i].FilePath, "")
-		if err != nil {
-			return
-		}
-		err = dictionary.read(str)
+		err = dictionary.read(documentPath + string(filepath.Separator) + setting.Dictionary[i].FileName)
 		if err != nil {
 			return
 		}

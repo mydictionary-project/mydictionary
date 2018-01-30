@@ -1,16 +1,15 @@
 package mydictionary
 
-import "github.com/zzc-tongji/rtoa"
+import (
+	"path/filepath"
+)
 
 // dictionart list
 type collectionListSlice []collectionStruct
 
 // read all collection from .xlsx file
 func (collectionList *collectionListSlice) read(setting *settingStruct) (err error) {
-	var (
-		collection collectionStruct
-		str        string
-	)
+	var collection collectionStruct
 	// read collection
 	for i := 0; i < len(setting.Collection); i++ {
 		collection.index = i
@@ -18,11 +17,7 @@ func (collectionList *collectionListSlice) read(setting *settingStruct) (err err
 		collection.readable = setting.Collection[i].Readable
 		collection.writable = setting.Collection[i].Writable
 		collection.onlineSource = setting.Collection[i].OnlineSource
-		str, err = rtoa.Convert(setting.Collection[i].FilePath, "")
-		if err != nil {
-			return
-		}
-		err = collection.read(str)
+		err = collection.read(documentPath + string(filepath.Separator) + setting.Collection[i].FileName)
 		if err != nil {
 			return
 		}

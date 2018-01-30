@@ -66,9 +66,17 @@ Here are examples:
 
 The action of updating and/or adding is called ***record***.
 
-#### 2.4. Configuration
+#### 2.4. Path
 
-The ***configuration file*** `mydictionary.setting.json` should be placed at the ***default location***. For a desktop application, the *default location* is the location of itself.
+These paths are needed by MYDICTIONARY (directory):
+
+- ***Work path***: configuration file should be here.
+- ***Document path***: collection files and dictionary files should be here.
+- ***Cache path***: cache files of services should be here.
+
+#### 2.5. Configuration
+
+The ***configuration file*** `mydictionary.setting.json` should be placed at the *work path*.
 
 Here is an example:
 
@@ -77,21 +85,21 @@ Here is an example:
 	"collection": [
 		{
 			"name": "bing-dictionary",
-			"filePath": "data/bing-dictionary.xlsx",
+			"fileName": "bing-dictionary.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "Bing Dictionary"
 		},
 		{
 			"name": "iciba-collins",
-			"filePath": "data/iciba-collins.xlsx",
+			"fileName": "iciba-collins.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "iCIBA Collins"
 		},
 		{
 			"name": "merriam-webster",
-			"filePath": "data/merriam-webster.xlsx",
+			"fileName": "merriam-webster.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "Merriam Webster"
@@ -100,13 +108,13 @@ Here is an example:
 	"dictionary": [
 		{
 			"name": "animal",
-			"filePath": "data/animal.xlsx",
+			"fileName": "animal.xlsx",
 			"readable": true,
 			"writable": true
 		},
 		{
 			"name": "fruit",
-			"filePath": "data/fruit.xlsx",
+			"fileName": "fruit.xlsx",
 			"readable": true,
 			"writable": true
 		}
@@ -129,30 +137,30 @@ Here is an example:
 
 There are 3 structures in the ***configuration***: `"collection"`, `"dictionary"` and `"online"`.
 
-##### 2.4.1. collection
+##### 2.5.1. collection
 
 `"collection"` is an array and each item in this array has got such members:
 
 - String `"name"`: it is the name of the *collection*.
-- String `"filePath"`: it is the file path of the *collection file*. It can be a relative path base on the *default location*.
+- String `"fileName"`: it is the file name of the *collection file* in *document path*.
 - Boolean `"readable"`: if it is `false`, the *collection* will be ignored by MYDICTIONARY. By setting this, we can disable the *collection* without removing the whole array item.
 - Boolean `"writable"`: if it is `true`, MYDICTIONARY will be allowed to *record* *vocabularies* of the *collection* **when querying**.
 - String `"onlineSource"`: each *collection* is only able to record *vocabularies* from one *service*, but MYDICTIONARY can get *vocabularies* from several different *services*. So we need this member to indicate the corresponding relation between the *collection* and the *service*. This member should exactly match the key name in `online.service`.
 
-##### 2.4.2. dictionary
+##### 2.5.2. dictionary
 
 `"dictionary"` is an array and each item in this array has got such members:
 
 - String `"name"`: it is the name of the *dictionary*.
-- String `"filePath"`: it is the file path of the *dictionary file*. It can be a relative path base on the *default location*.
+- String `"fileName"`: it is the file name of the *dictionary file* in *document path*.
 - Boolean `"readable"`: if it is `false`, the *dictionary* will be ignored by MYDICTIONARY. By setting this, we can disable the *dictionary* without removing the whole array item.
 - Boolean `"writable"`: if it is `true`, MYDICTIONARY will be allowed to *record* *vocabularies* of the *dictionary* **when querying**.
 
-##### 2.4.3. online
+##### 2.5.3. online
 
 `"online"` is a structure and has got these members:
 
-###### 2.4.3.1. mode
+###### 2.5.3.1. mode
 
 `"mode"` is an integer. It determines on what condition MYDICTIONARY should provide *vocabularies* from *services* (query online).
 
@@ -166,17 +174,17 @@ Here is the possible value:
 
 **If it's hard to understand, set `"mode"` as `3` by default.**
 
-###### 2.3.4.2. service
+###### 2.5.3.2. service
 
 `"service"` is an array. The key-value (string-boolean) pair of each item determines whether the *service* is enabled.
 
-###### 2.3.4.3. cache
+###### 2.5.3.3. cache
 
 If `"enable"` is `true`, MYDICTIONARY will cache query result from *services* for several days (determined by `"shelfLifeDay"`). **It can increase the speed of online query considerably.**
 
-For each *service*, its cache will correspond to a cache file of the same name. These cache files are in directory `cache/` of the *default location*.
+For each *service*, its cache will correspond to a cache file of the same name. These cache files are in *cache path*.
 
-###### 2.3.4.4. debug
+###### 2.5.3.4. debug
 
 `"debug"` indicates whether MYDICTIONARY is in debug mode. The default value is `false`. Do not modify it if you are not developer. Get further information from [here](https://github.com/zzc-tongji/service4mydictionary#33-create-service-by-yourself).
 
@@ -185,17 +193,24 @@ For each *service*, its cache will correspond to a cache file of the same name. 
 #### 3.1. Initialize
 
 ```go
-func Initialize() (success bool, information string)
+func Initialize(path []string) (success bool, information string)
 ```
 
 The function is used to initialize MYDICTIONARY.
 
-Here is the procedure:
+`path` is a string slice with 1-3 item(s).
 
-1. Read the *configuration file*, build and parse the *configuration*.
-2. Read *collection files* and build *collections*.
-3. Read *dictionaries files* and build *dictionaries*.
-4. Load cache file of *services*.
+- If the length of `path` is 1, *work path*, *document path* and *cache path* will be `path[0]`.
+- If the length of `path` is 2, *work path* will be `path[0]`, *document path* will be `path[1]`, *cache path* will be `path[0]`.
+- If the length of `path` is 3, *work path* will be `path[0]`, *document path* will be `path[1]`, *cache path* will be `path[2]`.
+
+Here is the procedure of the function:
+
+1. Set paths.
+2. Read the *configuration file*, build and parse the *configuration*.
+3. Read *collection files* and build *collections*.
+4. Read *dictionaries files* and build *dictionaries*.
+5. Load cache file of *services*.
 
 **The function should be called before any other functions.**
 
@@ -258,7 +273,7 @@ Return values:
 
 #### 3.5. Edit
 
-```Go
+```go
 func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)
 ```
 

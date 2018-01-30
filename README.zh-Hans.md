@@ -66,9 +66,17 @@ MYDICTIONARY目前提供下列*在线服务*：
 
 上述更新和/或新增操作称为**记录**。
 
-#### 2.4. 配置
+#### 2.4. 路径
 
-***配置文件*** `mydictionary.setting.json`必须被放置在 ***默认位置*** 。对于一个桌面应用程序，*默认位置*就是它自身的位置。
+MYDICTIONARY需要下列路径（目录）：
+
+- ***工作路径*** ：存放*配置文件*。
+- ***文档路径*** ：存放所有*生词本文件*和*离线词典文件*。
+- ***缓存路径*** ：存放所有*在线服务*的缓存文件。
+
+#### 2.5. 配置
+
+***配置文件*** `mydictionary.setting.json`必须被放置在*工作路径*。
 
 示例：
 
@@ -77,21 +85,21 @@ MYDICTIONARY目前提供下列*在线服务*：
 	"collection": [
 		{
 			"name": "bing-dictionary",
-			"filePath": "data/bing-dictionary.xlsx",
+			"fileName": "bing-dictionary.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "Bing Dictionary"
 		},
 		{
 			"name": "iciba-collins",
-			"filePath": "data/iciba-collins.xlsx",
+			"fileName": "iciba-collins.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "iCIBA Collins"
 		},
 		{
 			"name": "merriam-webster",
-			"filePath": "data/merriam-webster.xlsx",
+			"fileName": "merriam-webster.xlsx",
 			"readable": true,
 			"writable": true,
 			"onlineSource": "Merriam Webster"
@@ -100,13 +108,13 @@ MYDICTIONARY目前提供下列*在线服务*：
 	"dictionary": [
 		{
 			"name": "animal",
-			"filePath": "data/animal.xlsx",
+			"fileName": "animal.xlsx",
 			"readable": true,
 			"writable": true
 		},
 		{
 			"name": "fruit",
-			"filePath": "data/fruit.xlsx",
+			"fileName": "fruit.xlsx",
 			"readable": true,
 			"writable": true
 		}
@@ -129,30 +137,30 @@ MYDICTIONARY目前提供下列*在线服务*：
 
 ***配置*** 中有3个结构体：`"collection"`、`"dictionary"`和`"online"` 。
 
-##### 2.4.1. collection
+##### 2.5.1. collection
 
 `"collection"`是一个数组，它的每一项具有下列成员：
 
 - 字符串`"name"`：*生词本*的名称。
-- 字符串`"filePath"`：*生词本文件*的路径。可以是基于*默认位置*的相对路径。
+- 字符串`"fileName"`：*生词本文件*的名称，位于*文档路径*下。
 - 布尔型`"readable"` ：如果设为`false`，那么*生词本*将被MYDICTIONARY忽略。通过这项设置，我们可以在不移除整个数组项的情况下，停用*生词本*。
 - 布尔型`"writable"`：如果设为`true`，那么允许MYDICTIONARY**在查询的时候**将-*词条*-*记录*-到*生词本*。
 - 字符串`"onlineSource"`：每个生词本只能从一个*在线服务*中*记录*-*词条*，但是MYDICTIONARY能够从多个不同的*在线服务*中获得*词条*。因此，我们需要该成员来记录*生词本*与*在线服务*之间的对应关系。该成员需要与`online.service`中的键名精确匹配。
 
-##### 2.4.2. dictionary
+##### 2.5.2. dictionary
 
 `"dictionary"`是一个数组，它的每一项具有下列成员：
 
 - 字符串`"name"`：*离线词典*的名称。
-- 字符串`"filePath"`：*离线词典文件*的路径。可以是基于*默认位置*的相对路径。
+- 字符串`"fileName"`：*离线词典文件*的名称，位于*文档路径*下。
 - 布尔型`"readable"` ：如果设为`false`，那么*离线词典*将被MYDICTIONARY忽略。通过这项设置，我们可以在不移除整个数组项的情况下，停用*离线词典*。
 - 布尔型`"writable"`：如果设为`true`，那么允许MYDICTIONARY**在查询的时候**将-*词条*-*记录*-到*离线词典*。
 
-##### 2.4.3. online
+##### 2.5.3. online
 
 `"online"`是一个结构体，具有下列成员：
 
-###### 2.4.3.1. mode
+###### 2.5.3.1. mode
 
 `"mode"`是个整数，它决定了在什么样的情况下，MYDICTIONARY会从*在线服务*获取*词条*（联网查询）。
 
@@ -166,17 +174,17 @@ MYDICTIONARY目前提供下列*在线服务*：
 
 **如果难以理解以上描述，将`"mode"`设定为默认值`3`即可。**
 
-###### 2.3.4.2. service
+###### 2.5.3.2. service
 
 `"service"`是一个数组，每项的键-值对（字符串-布尔型）决定了是否启用该*在线服务*。
 
-###### 2.3.4.3. cache
+###### 2.5.3.3. cache
 
 如果`"enable"`设定为`true`，那么MYDICTIONARY将缓存从*在线服务*获得的查询结果若干天（取决于`"shelfLifeDay"`）。**这会显著增加联网查询的速度。**
 
-每个*在线服务*的缓存会对应一个同名缓存文件。缓存文件位于*默认位置*下的`cache/`目录中。
+每个*在线服务*的缓存会对应一个同名缓存文件。缓存文件位于*缓存路径*下。
 
-###### 2.3.4.4. debug
+###### 2.5.3.4. debug
 
 `"debug"`决定了MYDICTIONARY是否处于调试模式。默认值为`false`。非开发者请勿更改。从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md#33-%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%A8%E7%BA%BF%E6%9C%8D%E5%8A%A1)获取更多信息。
 
@@ -185,17 +193,24 @@ MYDICTIONARY目前提供下列*在线服务*：
 #### 3.1. Initialize
 
 ```go
-func Initialize() (success bool, information string)
+func Initialize(path []string) (success bool, information string)
 ```
 
 该函数用于初始化MYDICTIONARY。
 
-过程如下：
+`path`是一个包含1-3个成员的切片：
 
-1. 读取*配置文件*，生成并解析*配置*。
-2. 读取*生词本文件*，生成*生词本*。
-3. 读取*离线词典文件*，生成*离线词典*。
-4. 加载*在线服务*的缓存文件。
+- 如果`path`的长度为1，那么*工作路径*、*文档路径*和*缓存路径*均为`path[0]`。
+- 如果`path`的长度为2，那么*工作路径*为`path[0]`，*文档路径*为`path[1]`，*缓存路径*为`path[0]`。
+- 如果`path`的长度为3，那么*工作路径*为`path[0]`，*文档路径*为`path[1]`，*缓存路径*为`path[2]`。
+
+函数执行的过程如下：
+
+1. 设定路径。
+2. 读取*配置文件*，生成并解析*配置*。
+3. 读取*生词本文件*，生成*生词本*。
+4. 读取*离线词典文件*，生成*离线词典*。
+5. 加载*在线服务*的缓存文件。
 
 **该函数应该在任何其他函数前调用。**
 
@@ -258,7 +273,7 @@ func Save() (success bool, information string)
 
 #### 3.5. Edit
 
-```Go
+```go
 func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)
 ```
 

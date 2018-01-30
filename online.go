@@ -2,9 +2,9 @@ package mydictionary
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
-	"github.com/zzc-tongji/rtoa"
 	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
@@ -35,18 +35,9 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 }
 
 func loadCache() (err error) {
-	var temp string
-	temp, err = rtoa.Convert("cache/", "")
-	if err != nil {
-		return
-	}
-	os.Mkdir(temp, 0755)
+	os.Mkdir(cachePath, 0755)
 	for i := 0; i < len(onlineList); i++ {
-		temp, err = rtoa.Convert("cache/"+onlineList[i].GetServiceName()+".json", "")
-		if err != nil {
-			return
-		}
-		err = onlineList[i].GetCache().Read(temp, Setting.Online.Cache.ShelfLifeDay)
+		err = onlineList[i].GetCache().Read(cachePath+string(filepath.Separator)+onlineList[i].GetServiceName()+".json", Setting.Online.Cache.ShelfLifeDay)
 		if err != nil {
 			return
 		}

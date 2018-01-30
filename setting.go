@@ -4,23 +4,24 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
-	"github.com/zzc-tongji/rtoa"
 	"github.com/zzc-tongji/service4mydictionary"
 )
 
 // setting
 type settingStruct struct {
+	path       string
 	Collection []struct {
 		Name         string `json:"name"`
-		FilePath     string `json:"filePath"`
+		FileName     string `json:"fileName"`
 		Readable     bool   `json:"readable"`
 		Writable     bool   `json:"writable"`
 		OnlineSource string `json:"onlineSource"`
 	} `json:"collection"`
 	Dictionary []struct {
 		Name     string `json:"name"`
-		FilePath string `json:"filePath"`
+		FileName string `json:"fileName"`
 		Readable bool   `json:"readable"`
 		Writable bool   `json:"writable"`
 	} `json:"dictionary"`
@@ -58,17 +59,10 @@ type settingStruct struct {
 
 // read setting
 func (setting *settingStruct) Read() (content string, err error) {
-	var (
-		buf  []byte
-		path string
-	)
-	// convert path
-	path, err = rtoa.Convert("mydictionary.setting.json", "")
-	if err != nil {
-		return
-	}
+	var buf []byte
 	// read
-	buf, err = ioutil.ReadFile(path)
+	setting.path = workPath + string(filepath.Separator) + "mydictionary.setting.json"
+	buf, err = ioutil.ReadFile(setting.path)
 	if err != nil {
 		return
 	}
@@ -135,21 +129,13 @@ func (setting *settingStruct) Read() (content string, err error) {
 
 // Write : write setting
 func (setting *settingStruct) Write() (err error) {
-	var (
-		buf  []byte
-		path string
-	)
-	// convert path
-	path, err = rtoa.Convert("mydictionary.setting.json", "")
-	if err != nil {
-		return
-	}
+	var buf []byte
 	// write
 	buf, err = json.MarshalIndent(setting, "", "\t")
 	if err != nil {
 		return
 	}
-	os.Remove(path)
-	err = ioutil.WriteFile(path, buf, 0644)
+	os.Remove(setting.path)
+	err = ioutil.WriteFile(setting.path, buf, 0644)
 	return
 }

@@ -1,6 +1,7 @@
 package mydictionary
 
 import (
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -20,6 +21,9 @@ const (
 )
 
 var (
+	workPath     string
+	documentPath string
+	cachePath    string
 	// Setting : mydictionary setting
 	Setting        settingStruct
 	initialized    bool
@@ -34,13 +38,49 @@ func init() {
 }
 
 // Initialize : initialize the library
-func Initialize() (success bool, information string) {
+func Initialize(path []string) (success bool, information string) {
 	var (
 		err     error
 		content string
 	)
 	// lock
 	mutex.Lock()
+	// path
+	if path != nil {
+		switch len(path) {
+		case 1:
+			workPath = filepath.Clean(path[0])
+			documentPath = workPath
+			cachePath = workPath
+			break
+		case 2:
+			workPath = filepath.Clean(path[0])
+			documentPath = filepath.Clean(path[1])
+			cachePath = workPath
+			break
+		case 3:
+			workPath = filepath.Clean(path[0])
+			documentPath = filepath.Clean(path[1])
+			cachePath = filepath.Clean(path[2])
+			break
+		default:
+			information = "the parameter should be a slice with 1-3 item(s)"
+			success = false
+			// set flag
+			initialized = false
+			// unlock
+			mutex.Unlock()
+			return
+		}
+	} else {
+		information = "the parameter should not be nil"
+		success = false
+		// set flag
+		initialized = false
+		// unlock
+		mutex.Unlock()
+		return
+	}
 	// read Setting
 	content, err = Setting.Read()
 	if err != nil {
