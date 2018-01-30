@@ -39,7 +39,7 @@ Dictionary applications need files to store words and definitions. As far as I k
 All ".xlsx" files which march the following conditions could become ***collection files*** or ***dictionary files***.
 
 - Contain at least one worksheet.
-- In the first worksheet, cells of the first line should contain: "SN" (serial number), "Word", "Define", "Note", "QC" (query counter) and "QT" (last query time).
+- In the first worksheet, cells of the first line should contain: "SN" (serial number), "Word", "Definition", "Note", "QC" (query counter) and "QT" (last query time).
 
 Here are examples:
 

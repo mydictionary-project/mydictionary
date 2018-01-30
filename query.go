@@ -13,7 +13,7 @@ import (
 const (
 	// title in .xlsx file
 	wd  = "Word"
-	def = "Define"
+	def = "Definition"
 	sn  = "SN"
 	qc  = "QC"
 	qt  = "QT"
