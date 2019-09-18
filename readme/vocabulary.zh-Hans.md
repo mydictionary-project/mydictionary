@@ -190,3 +190,4 @@ type VocabularyEditStruct struct {
 - 所有".md"文件是用[Typora](http://typora.io)编写的。
 - 所有".md"文件的风格是[Github Flavored Markdown](https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown)。
 - 各行以LF（Linux）结尾。
+
