@@ -1,10 +1,12 @@
 # MYDICTIONARY
 
-[English Version](./README.md)
+[English](./main.md)
 
 ### 1. 简介
 
-MYDICTIONARY是一个golang库。该库提供为开发者提供一组API，以帮助他们构建基于Excel表格与在线内容的词典应用程序。
+MYDICTIONARY是一个golang库。
+
+该库提供为开发者提供一组API，以帮助他们构建基于Excel表格与在线内容的词典应用程序。
 
 ### 2. 基本信息
 
@@ -12,7 +14,7 @@ MYDICTIONARY是一个golang库。该库提供为开发者提供一组API，以�
 
 ***词条*** 包括词汇、释义、笔记和其他必要信息。
 
-从[这里](https://github.com/zzc-tongji/vocabulary4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
+从[这里](./vocabulary.zh-Hans.md)获取更多信息。
 
 #### 2.2. 在线服务
 
@@ -30,7 +32,7 @@ MYDICTIONARY目前提供下列*在线服务*：
 - **上述信息禁止用于一切形式的商业用途。**
 - **滥用上述信息产生的一切后果与本人无关。**
 
-从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md)获取更多信息。
+从[这里](./service.zh-Hans.md)获取更多信息。
 
 #### 2.3. 生词本和离线词典
 
@@ -45,11 +47,11 @@ MYDICTIONARY目前提供下列*在线服务*：
 
 - *生词本文件*`bing-dictionary.xlsx`
 
-![bing-dictionary](./README.picture/bing-dictionary.png)
+![bing-dictionary](./picture/bing-dictionary.png)
 
 - *离线词典文件*`animal.xlsx`
 
-![animal](./README.picture/animal.png)
+![animal](./picture/animal.png)
 
 ***生词本*** 和 ***离线词典*** 都是*词条*的集合。它们分别是*生词本文件*和*离线词典文件*的内存映像。*生词本文件*或*离线词典文件*中的一行会被转化为*生词本*或*离线词典*中的一个*词条*。
 
@@ -186,7 +188,7 @@ MYDICTIONARY需要下列路径（目录）：
 
 ###### 2.5.3.4. debug
 
-`"debug"`决定了MYDICTIONARY是否处于调试模式。默认值为`false`。非开发者请勿更改。从[这里](https://github.com/zzc-tongji/service4mydictionary/blob/master/README.zh-Hans.md#33-%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9C%A8%E7%BA%BF%E6%9C%8D%E5%8A%A1)获取更多信息。
+`"debug"`决定了MYDICTIONARY是否处于调试模式。默认值为`false`。非开发者请勿更改。
 
 ### 3. API
 
@@ -293,9 +295,9 @@ func Edit(vocabularyEdit VocabularyEditStruct) (success bool, information string
 ### 5. 交流
 
 - [反馈](https://github.com/zzc-tongji/mydictionary/issues)
-- QQ群：657218106
+- QQ群：727068810
 
-![657218106](./README.picture/657218106.png)
+![657218106](./picture/727068810.png)
 
 ### 6. 其他
 

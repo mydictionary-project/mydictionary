@@ -1,10 +1,12 @@
 # MYDICTIONARY
 
-[简体中文版](./README.zh-Hans.md)
+[简体中文](./main.zh-Hans.md)
 
 ### 1. Introduction
 
-MYDICTIONARY is a library designed by golang. It provides the API for developers to build applications of excel-based and online dictionaries.
+MYDICTIONARY is a library designed by golang.
+
+It provides the API for developers to build applications of excel-based and online dictionaries.
 
 ### 2. Basic Information
 
@@ -12,7 +14,7 @@ MYDICTIONARY is a library designed by golang. It provides the API for developers
 
 ***Vocabulary*** contains word, definitions, notes and other necessary information.
 
-Get further information from [here](https://github.com/zzc-tongji/vocabulary4mydictionary).
+Get further information from [here](./vocabulary.md).
 
 #### 2.2. Service
 
@@ -30,7 +32,7 @@ MYDICTIONARY provides these *services* currently:
 - **All of these information are prohibited for any form of commercial use.**
 - **I am NOT accountable for misappropriation of these information.**
 
-Get further information from [here](https://github.com/zzc-tongji/service4mydictionary).
+Get further information from [here](./service.md).
 
 #### 2.3. Collection & Dictionary
 
@@ -45,11 +47,11 @@ Here are examples:
 
 - *collection file* `bing-dictionary.xlsx`
 
-![bing-dictionary](./README.picture/bing-dictionary.png)
+![bing-dictionary](./picture/bing-dictionary.png)
 
 - *dictionary file* `animal.xlsx`
 
-![animal](./README.picture/animal.png)
+![animal](./picture/animal.png)
 
 ***Collections*** and ***Dictionaries*** are composed of *vocabularies*. They are RAM images of *collection files* and *dictionary files*. Each line of *collection files* or *dictionary files* is converted to a *vocabulary* in *collections* or *dictionaries*.
 
@@ -186,7 +188,7 @@ For each *service*, its cache will correspond to a cache file of the same name. 
 
 ###### 2.5.3.4. debug
 
-`"debug"` indicates whether MYDICTIONARY is in debug mode. The default value is `false`. Do not modify it if you are not developer. Get further information from [here](https://github.com/zzc-tongji/service4mydictionary#33-create-service-by-yourself).
+`"debug"` indicates whether MYDICTIONARY is in debug mode. The default value is `false`. Do not modify it if you are not developer.
 
 ### 3. API
 
@@ -293,9 +295,9 @@ Return values:
 ### 5. Communication
 
 - [Feedback](https://github.com/zzc-tongji/mydictionary/issues)
-- QQ group: 657218106
+- QQ group: 727068810
 
-![657218106](./README.picture/657218106.png)
+![657218106](./picture/727068810.png)
 
 ### 6. Others
 
