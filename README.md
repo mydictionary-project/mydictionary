@@ -236,7 +236,7 @@ Return values:
 #### 3.3. Query
 
 ```go
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct)
+func Query(vocabularyAsk VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct)
 ```
 
 It is the core function of MYDICTIONARY.
@@ -274,7 +274,7 @@ Return values:
 #### 3.5. Edit
 
 ```go
-func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)
+func Edit(vocabularyEdit VocabularyEditStruct) (success bool, information string)
 ```
 
 This function is used to edit definitions and notes of a *vocabulary* in *collection* or *dictionary*. It **is NOT restricted by `"writable"` in *configuration***.

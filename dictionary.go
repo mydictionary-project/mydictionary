@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 // dictionary
@@ -19,7 +18,7 @@ type dictionaryStruct struct {
 	xlsx        *excelize.File
 	sheetName   string
 	columnIndex map[string]int
-	content     []vocabulary4mydictionary.VocabularyAnswerStruct
+	content     []VocabularyAnswerStruct
 }
 
 // open and check .xlsx file
@@ -168,7 +167,7 @@ RECHECK:
 func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 	var (
 		str              string
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswer VocabularyAnswerStruct
 	)
 	if dictionary.readable {
 		// check
@@ -177,7 +176,7 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			return
 		}
 		// get space of content
-		dictionary.content = make([]vocabulary4mydictionary.VocabularyAnswerStruct, 0)
+		dictionary.content = make([]VocabularyAnswerStruct, 0)
 		// ram image -> content
 		for i := 2; ; i++ {
 			// `xlsx:wd` -> .Word
@@ -218,7 +217,7 @@ func (dictionary *dictionaryStruct) read(filePath string) (err error) {
 			}
 			// others
 			vocabularyAnswer.SourceName = dictionary.name
-			vocabularyAnswer.Location.TableType = vocabulary4mydictionary.Dictionary
+			vocabularyAnswer.Location.TableType = Dictionary
 			vocabularyAnswer.Status = ""
 			// add to dictionary
 			dictionary.content = append(dictionary.content, vocabularyAnswer)
@@ -254,9 +253,9 @@ func (dictionary *dictionaryStruct) write() (information string, err error) {
 }
 
 // query and update
-func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
+func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk VocabularyAskStruct) (vocabularyAnswerList []VocabularyAnswerStruct) {
 	var (
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswer VocabularyAnswerStruct
 		tm               time.Time
 	)
 	if dictionary.readable {
@@ -274,7 +273,7 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 					}
 				}
 				vocabularyAnswer = dictionary.content[i]
-				vocabularyAnswer.Status = vocabulary4mydictionary.Basic
+				vocabularyAnswer.Status = Basic
 				vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 				if vocabularyAsk.Advance {
 					continue
@@ -286,14 +285,14 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 				// advance
 				if strings.Contains(dictionary.content[i].Word, vocabularyAsk.Word) {
 					vocabularyAnswer = dictionary.content[i]
-					vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+					vocabularyAnswer.Status = Advance
 					vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 					goto ADVANCE_END
 				}
 				for j := 0; j < len(dictionary.content[i].Definition); j++ {
 					if strings.Contains(dictionary.content[i].Definition[j], vocabularyAsk.Word) {
 						vocabularyAnswer = dictionary.content[i]
-						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+						vocabularyAnswer.Status = Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 						goto ADVANCE_END
 					}
@@ -301,7 +300,7 @@ func (dictionary *dictionaryStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 				for j := 0; j < len(dictionary.content[i].Note); j++ {
 					if strings.Contains(dictionary.content[i].Note[j], vocabularyAsk.Word) {
 						vocabularyAnswer = dictionary.content[i]
-						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+						vocabularyAnswer.Status = Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 						goto ADVANCE_END
 					}

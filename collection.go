@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 // collection
@@ -20,7 +19,7 @@ type collectionStruct struct {
 	xlsx         *excelize.File
 	sheetName    string
 	columnIndex  map[string]int
-	content      []vocabulary4mydictionary.VocabularyAnswerStruct
+	content      []VocabularyAnswerStruct
 }
 
 // open and check .xlsx file
@@ -169,7 +168,7 @@ RECHECK:
 func (collection *collectionStruct) read(filePath string) (err error) {
 	var (
 		str              string
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswer VocabularyAnswerStruct
 	)
 	if collection.readable {
 		// check
@@ -178,7 +177,7 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			return
 		}
 		// get space of content
-		collection.content = make([]vocabulary4mydictionary.VocabularyAnswerStruct, 0)
+		collection.content = make([]VocabularyAnswerStruct, 0)
 		// ram image -> content
 		for i := 2; ; i++ {
 			// `xlsx:wd` -> .Word
@@ -219,7 +218,7 @@ func (collection *collectionStruct) read(filePath string) (err error) {
 			}
 			// others
 			vocabularyAnswer.SourceName = collection.name
-			vocabularyAnswer.Location.TableType = vocabulary4mydictionary.Collection
+			vocabularyAnswer.Location.TableType = Collection
 			vocabularyAnswer.Status = ""
 			// add to collection
 			collection.content = append(collection.content, vocabularyAnswer)
@@ -263,9 +262,9 @@ func (collection *collectionStruct) write() (information string, err error) {
 }
 
 // query and update
-func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
+func (collection *collectionStruct) queryAndUpdate(vocabularyAsk VocabularyAskStruct) (vocabularyAnswerList []VocabularyAnswerStruct) {
 	var (
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswer VocabularyAnswerStruct
 		tm               time.Time
 	)
 	if collection.readable {
@@ -283,7 +282,7 @@ func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 					}
 				}
 				vocabularyAnswer = collection.content[i]
-				vocabularyAnswer.Status = vocabulary4mydictionary.Basic
+				vocabularyAnswer.Status = Basic
 				vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 				if vocabularyAsk.Advance {
 					continue
@@ -295,14 +294,14 @@ func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 				// advance
 				if strings.Contains(collection.content[i].Word, vocabularyAsk.Word) {
 					vocabularyAnswer = collection.content[i]
-					vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+					vocabularyAnswer.Status = Advance
 					vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 					goto ADVANCE_END
 				}
 				for j := 0; j < len(collection.content[i].Definition); j++ {
 					if strings.Contains(collection.content[i].Definition[j], vocabularyAsk.Word) {
 						vocabularyAnswer = collection.content[i]
-						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+						vocabularyAnswer.Status = Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 						goto ADVANCE_END
 					}
@@ -310,7 +309,7 @@ func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 				for j := 0; j < len(collection.content[i].Note); j++ {
 					if strings.Contains(collection.content[i].Note[j], vocabularyAsk.Word) {
 						vocabularyAnswer = collection.content[i]
-						vocabularyAnswer.Status = vocabulary4mydictionary.Advance
+						vocabularyAnswer.Status = Advance
 						vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 						goto ADVANCE_END
 					}
@@ -323,11 +322,11 @@ func (collection *collectionStruct) queryAndUpdate(vocabularyAsk vocabulary4mydi
 }
 
 // add vocabulary to collection
-func (collection *collectionStruct) add(vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
+func (collection *collectionStruct) add(vocabularyAnswerList []VocabularyAnswerStruct) {
 	var (
 		existent         bool
 		index            int
-		vocabularyAnswer vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswer VocabularyAnswerStruct
 		tm               time.Time
 	)
 	if collection.readable && collection.writable {
@@ -335,9 +334,9 @@ func (collection *collectionStruct) add(vocabularyAnswerList []vocabulary4mydict
 		existent = false
 		index = -1
 		for i := 0; i < len(vocabularyAnswerList); i++ {
-			if strings.Compare(vocabularyAnswerList[i].Status, vocabulary4mydictionary.Basic) == 0 {
+			if strings.Compare(vocabularyAnswerList[i].Status, Basic) == 0 {
 				// only for vocabulary with define from basic query
-				if vocabularyAnswerList[i].Location.TableType == vocabulary4mydictionary.Online {
+				if vocabularyAnswerList[i].Location.TableType == Online {
 					// from online: check whether online source index match or not
 					if strings.Compare(vocabularyAnswerList[i].SourceName, collection.onlineSource) == 0 {
 						index = i
@@ -357,7 +356,7 @@ func (collection *collectionStruct) add(vocabularyAnswerList []vocabulary4mydict
 			vocabularyAnswer.QueryCounter = 1
 			vocabularyAnswer.QueryTime = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d", tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute(), tm.Second())
 			vocabularyAnswer.SourceName = collection.name
-			vocabularyAnswer.Location.TableType = vocabulary4mydictionary.Collection
+			vocabularyAnswer.Location.TableType = Collection
 			vocabularyAnswer.Status = ""
 			// add
 			collection.content = append(collection.content, vocabularyAnswer)

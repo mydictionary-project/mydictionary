@@ -6,8 +6,6 @@ import (
 	"sync"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/zzc-tongji/service4mydictionary"
-	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 const (
@@ -29,7 +27,7 @@ var (
 	initialized    bool
 	collectionList collectionListSlice
 	dictionaryList dictionaryListSlice
-	onlineList     []service4mydictionary.ServiceInterface
+	onlineList     []ServiceInterface
 	mutex          sync.Mutex
 )
 
@@ -163,10 +161,10 @@ func CheckNetwork() (success bool, information string) {
 }
 
 // Query : query
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct) {
+func Query(vocabularyAsk VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct) {
 	var (
-		vocabularyAnswerList        []vocabulary4mydictionary.VocabularyAnswerStruct
-		vocabularyAnswerListPrepare []vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswerList        []VocabularyAnswerStruct
+		vocabularyAnswerListPrepare []VocabularyAnswerStruct
 		localNoFound                bool
 		enableOnline                bool
 	)
@@ -192,7 +190,7 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success b
 	// online: query
 	localNoFound = true
 	for i := 0; i < len(vocabularyAnswerListPrepare); i++ {
-		if vocabularyAnswerListPrepare[i].Status == vocabulary4mydictionary.Basic {
+		if vocabularyAnswerListPrepare[i].Status == Basic {
 			localNoFound = false
 			break
 		}
@@ -206,7 +204,7 @@ func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success b
 	}
 	// build result
 	for i := 0; i < len(vocabularyAnswerListPrepare); i++ {
-		if strings.Compare(vocabularyAnswerListPrepare[i].Status, vocabulary4mydictionary.Advance) == 0 {
+		if strings.Compare(vocabularyAnswerListPrepare[i].Status, Advance) == 0 {
 			vocabularyResult.Advance = append(vocabularyResult.Advance, vocabularyAnswerListPrepare[i])
 		} else {
 			vocabularyResult.Basic = append(vocabularyResult.Basic, vocabularyAnswerListPrepare[i])
@@ -259,7 +257,7 @@ func Save() (success bool, information string) {
 }
 
 // Edit : edit
-func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string) {
+func Edit(vocabularyEdit VocabularyEditStruct) (success bool, information string) {
 	// lock
 	mutex.Lock()
 	// return directly if the library has not been initialized
@@ -272,8 +270,8 @@ func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success 
 	}
 	// check
 	// table type
-	if vocabularyEdit.Location.TableType != vocabulary4mydictionary.Collection &&
-		vocabularyEdit.Location.TableType != vocabulary4mydictionary.Dictionary {
+	if vocabularyEdit.Location.TableType != Collection &&
+		vocabularyEdit.Location.TableType != Dictionary {
 		success = false
 		information = "invalid variable \"TableType\"\n\n"
 		// unlock
@@ -281,7 +279,7 @@ func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success 
 		return
 	}
 	// location
-	if vocabularyEdit.Location.TableType == vocabulary4mydictionary.Collection {
+	if vocabularyEdit.Location.TableType == Collection {
 		if vocabularyEdit.Location.TableIndex < 0 || vocabularyEdit.Location.TableIndex >= len(collectionList) {
 			success = false
 			information = "invalid variable \"Location.TableIndex\"\n\n"
@@ -296,7 +294,7 @@ func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success 
 			mutex.Unlock()
 			return
 		}
-	} else { // vocabularyEdit.TableType == vocabulary4mydictionary.Dictionary
+	} else { // vocabularyEdit.TableType == Dictionary
 		if vocabularyEdit.Location.TableIndex < 0 || vocabularyEdit.Location.TableIndex >= len(dictionaryList) {
 			success = false
 			information = "invalid variable \"Location.TableIndex\"\n\n"
@@ -313,10 +311,10 @@ func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success 
 		}
 	}
 	// edit
-	if vocabularyEdit.Location.TableType == vocabulary4mydictionary.Collection {
+	if vocabularyEdit.Location.TableType == Collection {
 		collectionList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Note = strings.Split(strings.TrimSpace(vocabularyEdit.Note), "\n")
 		collectionList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Definition = strings.Split(strings.TrimSpace(vocabularyEdit.Definition), "\n")
-	} else { // vocabularyEdit.TableType == vocabulary4mydictionary.Dictionary
+	} else { // vocabularyEdit.TableType == Dictionary
 		dictionaryList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Note = strings.Split(strings.TrimSpace(vocabularyEdit.Note), "\n")
 		dictionaryList[vocabularyEdit.Location.TableIndex].content[vocabularyEdit.Location.ItemIndex].Definition = strings.Split(strings.TrimSpace(vocabularyEdit.Definition), "\n")
 	}

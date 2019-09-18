@@ -236,7 +236,7 @@ func CheckNetwork() (success bool, information string)
 #### 3.3. Query
 
 ```go
-func Query(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (success bool, vocabularyResult vocabulary4mydictionary.VocabularyResultStruct)
+func Query(vocabularyAsk VocabularyAskStruct) (success bool, vocabularyResult VocabularyResultStruct)
 ```
 
 该函数是MYDICTIONARY的核心。
@@ -274,7 +274,7 @@ func Save() (success bool, information string)
 #### 3.5. Edit
 
 ```go
-func Edit(vocabularyEdit vocabulary4mydictionary.VocabularyEditStruct) (success bool, information string)
+func Edit(vocabularyEdit VocabularyEditStruct) (success bool, information string)
 ```
 
 该函数用于编辑*生词本*或*离线词典*中*词条*的释义和笔记。该函数**不受*配置*中`"writable"`的制约。**

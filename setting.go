@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/zzc-tongji/service4mydictionary"
 )
 
 // setting
@@ -72,13 +70,13 @@ func (setting *settingStruct) Read() (content string, err error) {
 	}
 	// set online
 	if setting.Online.Service.BingDictionary {
-		onlineList = append(onlineList, new(service4mydictionary.BingDictionaryStruct))
+		onlineList = append(onlineList, new(BingDictionaryStruct))
 	}
 	if setting.Online.Service.IcibaCollins {
-		onlineList = append(onlineList, new(service4mydictionary.IcibaCollinsStruct))
+		onlineList = append(onlineList, new(IcibaCollinsStruct))
 	}
 	if setting.Online.Service.MerriamWebster {
-		onlineList = append(onlineList, new(service4mydictionary.MerriamWebsterStruct))
+		onlineList = append(onlineList, new(MerriamWebsterStruct))
 	}
 	//
 	// NOTE:
@@ -89,7 +87,7 @@ func (setting *settingStruct) Read() (content string, err error) {
 	// Example:
 	//
 	//    if setting.Online.Service.Service {
-	//    	onlineList = append(onlineList, new(service4mydictionary.Service))
+	//    	onlineList = append(onlineList, new(Service))
 	//    }
 	//
 	if setting.Online.Mode < 0 {

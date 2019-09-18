@@ -4,18 +4,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/zzc-tongji/vocabulary4mydictionary"
 )
 
 // quary vocabulary online
-func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (vocabularyAnswerList []vocabulary4mydictionary.VocabularyAnswerStruct) {
+func requestOnline(vocabularyAsk VocabularyAskStruct) (vocabularyAnswerList []VocabularyAnswerStruct) {
 	var (
-		vocabularyAnswerChannel chan vocabulary4mydictionary.VocabularyAnswerStruct
-		vocabularyAnswer        vocabulary4mydictionary.VocabularyAnswerStruct
+		vocabularyAnswerChannel chan VocabularyAnswerStruct
+		vocabularyAnswer        VocabularyAnswerStruct
 	)
 	// prepare
-	vocabularyAnswerChannel = make(chan vocabulary4mydictionary.VocabularyAnswerStruct, len(onlineList))
+	vocabularyAnswerChannel = make(chan VocabularyAnswerStruct, len(onlineList))
 	// query
 	for i := 0; i < len(onlineList); i++ {
 		go func(index int) {
@@ -27,7 +25,7 @@ func requestOnline(vocabularyAsk vocabulary4mydictionary.VocabularyAskStruct) (v
 		vocabularyAnswer = <-vocabularyAnswerChannel
 		if Setting.Online.Debug {
 			vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
-		} else if strings.Compare(vocabularyAnswer.Status, vocabulary4mydictionary.Basic) == 0 {
+		} else if strings.Compare(vocabularyAnswer.Status, Basic) == 0 {
 			vocabularyAnswerList = append(vocabularyAnswerList, vocabularyAnswer)
 		}
 	}
