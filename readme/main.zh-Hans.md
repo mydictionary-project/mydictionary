@@ -295,9 +295,6 @@ func Edit(vocabularyEdit VocabularyEditStruct) (success bool, information string
 ### 5. 交流
 
 - [反馈](https://github.com/zzc-tongji/mydictionary/issues)
-- QQ群：727068810
-
-![657218106](./picture/727068810.png)
 
 ### 6. 其他
 
