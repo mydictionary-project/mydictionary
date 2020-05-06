@@ -295,9 +295,6 @@ Return values:
 ### 5. Communication
 
 - [Feedback](https://github.com/zzc-tongji/mydictionary/issues)
-- QQ group: 727068810
-
-![657218106](./picture/727068810.png)
 
 ### 6. Others
 
